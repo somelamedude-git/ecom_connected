@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
+import axios from 'axios';
 
 const styles = {
   container: {
@@ -141,26 +142,20 @@ const styles = {
   }
 };
 
-function SignupPage({ tolanding, onLogin, tologin }) {
+function SignupPage({ tolanding, onSignUp, tologin }) {
 
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
+    age:'',
+    kind:'',
+    username:''
   });
 
-  const required_api_data= (formData)=>{
-    return {
-        name: formData.firstName + " " + formData.lastName,
-        email: formData.email,
-        password: (formData.password==formData.confirmPassword) && formData.password,
-        kind: formData.kind,
-        age: formData.age,
-        username: formData.username
-    }
-  }
+ 
 
   const handleInputChange = (e) => {
     setFormData({
@@ -177,7 +172,7 @@ function SignupPage({ tolanding, onLogin, tologin }) {
       return;
     }
     if (formData.firstName && formData.lastName && formData.email && formData.password) {
-      onLogin();
+      onSignUp(formData);
     } else {
       alert('Please fill in all fields');
     }
@@ -328,17 +323,21 @@ function SignupPage({ tolanding, onLogin, tologin }) {
 
             <div style={styles.formGroup}>
             <label htmlFor="accountType" style={styles.label}>Sign up as</label>
-            <select
-              id="accountType"
-              name="kind"
-              value={formData.accountType}
-              onChange={handleInputChange}
-              style={{ ...styles.input, backgroundColor: '#1f2937' }}
-              required
-            >
-              <option value="Buyer">Buyer</option>
-              <option value="Seller">Seller</option>
-            </select>
+           <select
+  id="accountType"
+  name="kind"
+  value={formData.kind}
+  onChange={handleInputChange}
+  style={{ ...styles.input, backgroundColor: '#1f2937' }}
+  required
+>
+  <option value="" disabled hidden>
+    Select account type
+  </option>
+  <option value="Buyer">Buyer</option>
+  <option value="Seller">Seller</option>
+</select>
+
           </div>
 
           <div style={styles.formGroup}>
