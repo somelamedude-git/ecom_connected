@@ -142,6 +142,7 @@ const styles = {
 };
 
 function SignupPage({ tolanding, onLogin, tologin }) {
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -149,6 +150,17 @@ function SignupPage({ tolanding, onLogin, tologin }) {
     password: '',
     confirmPassword: ''
   });
+
+  const required_api_data= (formData)=>{
+    return {
+        name: formData.firstName + " " + formData.lastName,
+        email: formData.email,
+        password: (formData.password==formData.confirmPassword) && formData.password,
+        kind: formData.kind,
+        age: formData.age,
+        username: formData.username
+    }
+  }
 
   const handleInputChange = (e) => {
     setFormData({
@@ -175,7 +187,7 @@ function SignupPage({ tolanding, onLogin, tologin }) {
 
     console.log('Google signup clicked');
 
-    alert('Google signup daalo idhar');
+    alert('Google signup daalo idhar'); //lmao ok
   };
 
   return (
@@ -318,7 +330,7 @@ function SignupPage({ tolanding, onLogin, tologin }) {
             <label htmlFor="accountType" style={styles.label}>Sign up as</label>
             <select
               id="accountType"
-              name="accountType"
+              name="kind"
               value={formData.accountType}
               onChange={handleInputChange}
               style={{ ...styles.input, backgroundColor: '#1f2937' }}
