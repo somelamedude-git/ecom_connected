@@ -142,7 +142,7 @@ const styles = {
   }
 };
 
-function SignupPage({ tolanding, onSignUp, tologin }) {
+function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
 
   const [formData, setFormData] = useState({
     firstName: '',
@@ -420,6 +420,8 @@ function SignupPage({ tolanding, onSignUp, tologin }) {
           >
             Sign in
           </span>
+
+         { alertText && <p style={{ color: 'red', marginTop: '1rem' }}>{alertText}</p> }
         </div>
       </div>
     </div>
