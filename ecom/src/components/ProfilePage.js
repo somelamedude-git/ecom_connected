@@ -9,9 +9,10 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const navigate = useNavigate();
   const [user, setuser] = useState(null);
   const [cards, setcards] = useState([]);
-  const [upiIds, setupiIds] = useState([]);
-  const [creditpoints, setcreditpoints] = useState(0);
+  const [upiIds, setupiIds] = useState([]); // This as well
+  const [creditpoints, setcreditpoints] = useState(0); // Will set this up later
   const [addresses, setaddresses] = useState([]);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(()=>{
     const fetchProfile = async()=>{
@@ -22,6 +23,8 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
 
         setuser(res.data.user);
         setaddresses(res.data.addresses);
+
+        const res_CWL = await axios.get('http://localhost:3000/user/getCWL')
       } catch(error){
         console.log(error);
       }
@@ -29,42 +32,42 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
     fetchProfile();
   }, []);
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const mockUser = {
-  //         name: 'Ada Lovelace',
-  //         joinYear: '2022',
-  //         ordersCount: 8,
-  //         wishlistcount: 5,
-  //         email: 'ada.lovelace@example.com',
-  //         phone: '+44 1234 567890',
-  //         stylePref: 'Cyberpunk Royalty',
-  //         username: 'lovelace42',
-  //         age: 29,
-  //       };
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const mockUser = {
+          name: 'Ada Lovelace',
+          joinYear: '2022',
+          ordersCount: 8,
+          wishlistcount: 5,
+          email: 'ada.lovelace@example.com',
+          phone: '+44 1234 567890',
+          stylePref: 'Cyberpunk Royalty',
+          username: 'lovelace42',
+          age: 29,
+        };
 
-  //       setuser(mockUser);
-  //       setcreditpoints(420);
-  //       setcards([
-  //         { number: '**** **** **** 1234', expiry: '12/26' },
-  //         { number: '**** **** **** 5678', expiry: '11/25' },
-  //       ]);
-  //       setupiIds([
-  //         { id: 'ada@ybl' },
-  //         { id: 'lovelace@upi' },
-  //       ]);
-  //       setaddresses([
-  //         { label: 'Home', address: '42 Binary Street, Algorithmland' },
-  //         { label: 'Work', address: '101 Logic Gate Avenue, Code City' },
-  //       ]);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
+        setuser(mockUser);
+        setcreditpoints(420);
+        setcards([
+          { number: '**** **** **** 1234', expiry: '12/26' },
+          { number: '**** **** **** 5678', expiry: '11/25' },
+        ]);
+        setupiIds([
+          { id: 'ada@ybl' },
+          { id: 'lovelace@upi' },
+        ]);
+        setaddresses([
+          { label: 'Home', address: '42 Binary Street, Algorithmland' },
+          { label: 'Work', address: '101 Logic Gate Avenue, Code City' },
+        ]);
+      } catch (error) {
+        console.log(error);
+      }
+    };
 
-  //   fetchData();
-  // }, []);
+    fetchData();
+  }, []);
 
   const adding = (setter, item) =>
     setter(prev => [...prev, item]);

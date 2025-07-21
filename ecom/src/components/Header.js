@@ -20,8 +20,12 @@ function Header({ menumove }) {
   useEffect(()=>{
     const fetchData = async()=>{
       try{
-        const res_login_status = await axios.get('http://localhost:3000/user/verifyLogin');
-        const res_CWL = await axios.get('http://localhost:3000/user/getCWL');
+        const res_login_status = await axios.get('http://localhost:3000/user/verifyLogin',{
+          withCredentials: true
+        });
+        const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
+          withCredentials:true
+        });
         setWishlistCount(res_CWL.data.wish_length);
         setCartCount(res_CWL.data.wish_length);
         setLoggedin(res_login_status.data.isLoggedIn);
