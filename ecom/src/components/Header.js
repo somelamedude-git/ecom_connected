@@ -15,17 +15,22 @@ function Header({ menumove }) {
 
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
-  const[ loggedin, setLoggedin] = useState(true);
+  const[ loggedin, setLoggedin] = useState(false);
 
   useEffect(()=>{
     const fetchData = async()=>{
       try{
-        const res = await axios.get('http://localhost:3000/user/verifyLogin');
-        setLoggedin(res.data.isLoggedIn);
+        const res_login_status = await axios.get('http://localhost:3000/user/verifyLogin');
+        const res_CWL = await axios.get('http://localhost:3000/user/getCWL');
+        setWishlistCount(res_CWL.data.wish_length);
+        setCartCount(res_CWL.data.wish_length);
+        setLoggedin(res_login_status.data.isLoggedIn);
       }catch(error){
-        console.log('Ive entered the error land');
-        console.log(error);
-        setLoggedin(true);
+        // console.log("And I am become error, the destroyer of websites");
+        // console.log(error);
+        setLoggedin(false);
+        setCartCount(0);
+        setWishlistCount(0);
       }
     };
 

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import {ArrowLeft, User, Edit, Package, Heart, Star, CreditCard, Wallet, MapPin, Plus} from 'lucide-react';
+import { ArrowLeft, User, Edit, Package, Heart, Star, CreditCard, Wallet, MapPin, Plus } from 'lucide-react';
 import Header from './Header';
+import axios from 'axios';
 import '../styles/ProfilePage.css';
 
 function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
@@ -9,61 +10,60 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const [user, setuser] = useState(null);
   const [cards, setcards] = useState([]);
   const [upiIds, setupiIds] = useState([]);
-  const [addresses, setaddresses] = useState([]);
   const [creditpoints, setcreditpoints] = useState(0);
+  const [addresses, setaddresses] = useState([]);
 
-  useEffect(() => {
-  async function fetchprofile() {
-    try {
-      const data = {
-        user: {
-          name: 'Camille Howe',
-          joinYear: '2023',
-          email: 'cam@mutiny.co',
-          phone: '+1-555-1234',
-          stylePref: 'Minimalist Cyberpunk',
-          ordersCount: 8,
-          wishlistcount: 5,
-        },
-        cards: [
-          { number: '**** **** **** 1234', expiry: '12/26' },
-          { number: '**** **** **** 5678', expiry: '07/25' },
-        ],
-        upiIds: [
-          { id: 'cam@upi' },
-          { id: 'cam.pay@bank' },
-        ],
-        addresses: [
-          { label: 'Home', address: '42 Silicon Valley, CA' },
-          { label: 'Work', address: '101 Mutiny Ave, SF' },
-        ],
-        creditpoints: 3200
-      };
+  useEffect(()=>{
+    const fetchProfile = async()=>{
+      try{
+        const res = await axios.get('http://localhost:3000/user/profile', {
+          withCredentials:true
+        });
 
-      setuser(data.user);
-      setcards(data.cards);
-      setupiIds(data.upiIds);
-      setaddresses(data.addresses);
-      setcreditpoints(data.creditpoints);
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  fetchprofile();
-}, []);
+        setuser(res.data.user);
+        setaddresses(res.data.addresses);
+      } catch(error){
+        console.log(error);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   // useEffect(() => {
-  //   async function fetchprofile() {
+  //   const fetchData = async () => {
   //     try {
-  //       //idhar api
-  //       setuser(data.user); setcards(data.cards);setupiIds(data.upiIds);setaddresses(data.addresses);
-  //       setcreditpoints(data.creditpoints);
-  //     } catch (e) {
-  //       console.error(e);
+  //       const mockUser = {
+  //         name: 'Ada Lovelace',
+  //         joinYear: '2022',
+  //         ordersCount: 8,
+  //         wishlistcount: 5,
+  //         email: 'ada.lovelace@example.com',
+  //         phone: '+44 1234 567890',
+  //         stylePref: 'Cyberpunk Royalty',
+  //         username: 'lovelace42',
+  //         age: 29,
+  //       };
+
+  //       setuser(mockUser);
+  //       setcreditpoints(420);
+  //       setcards([
+  //         { number: '**** **** **** 1234', expiry: '12/26' },
+  //         { number: '**** **** **** 5678', expiry: '11/25' },
+  //       ]);
+  //       setupiIds([
+  //         { id: 'ada@ybl' },
+  //         { id: 'lovelace@upi' },
+  //       ]);
+  //       setaddresses([
+  //         { label: 'Home', address: '42 Binary Street, Algorithmland' },
+  //         { label: 'Work', address: '101 Logic Gate Avenue, Code City' },
+  //       ]);
+  //     } catch (error) {
+  //       console.log(error);
   //     }
-  //   }
-  //   fetchprofile();
+  //   };
+
+  //   fetchData();
   // }, []);
 
   const adding = (setter, item) =>
@@ -93,6 +93,7 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
             <div className="avatar"><User size={48} /></div>
             <div>
               <h1 className="profilename">{user.name}</h1>
+              <p className="username">@{user.username}</p>
               <p className="membersince">Member since {user.joinYear}</p>
               <button className="editb" onClick={() => nav('/profile/edit')}>
                 <Edit size={16} /> Edit Profile
@@ -130,6 +131,10 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
             <div className="infoitem">
               <label>Preferred Style</label>
               <p>{user.stylePref}</p>
+            </div>
+            <div className="infoitem">
+              <label>Age</label>
+              <p>{user.age}</p>
             </div>
           </div>
         </div>
