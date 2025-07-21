@@ -14,28 +14,31 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const [addresses, setaddresses] = useState([]);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
-  useEffect(()=>{
-    const fetchProfile = async()=>{
-      try{
-        const res = await axios.get('http://localhost:3000/user/profile', {
-          withCredentials:true
-        });
 
-        setuser(res.data.user);
-        setaddresses(res.data.addresses);
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const [profileRes, cwlRes] = await Promise.all([
+        axios.get('http://localhost:3000/user/profile', {
+          withCredentials: true,
+        }),
+        axios.get('http://localhost:3000/user/getCWL', {
+          withCredentials: true,
+        }),
+      ]);
 
-        const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
-          withCredentials:true
-        });
+      setuser(profileRes.data.user);
+      setaddresses(profileRes.data.addresses);
+      
+      setWishlistCount(cwlRes.data.wish_length);
+      setOrdersCount(cwlRes.data.orderHistory_length);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-        setWishlistCount(res_CWL.data.wish_length);
-        setOrdersCount(res_CWL.data.orderHistory_length);
-      } catch(error){
-        console.log(error);
-      }
-    };
-    fetchProfile();
-  }, []);
+  fetchProfile();
+}, []);
 
   // useEffect(() => {
   //   const fetchData = async () => {
