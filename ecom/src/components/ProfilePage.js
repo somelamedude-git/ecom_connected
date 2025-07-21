@@ -13,7 +13,7 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const [creditpoints, setcreditpoints] = useState(0); // Will set this up later
   const [addresses, setaddresses] = useState([]);
   const [wishlistCount, setWishlistCount] = useState(0);
-
+  const [ordersCount, setOrdersCount] = useState(0);
   useEffect(()=>{
     const fetchProfile = async()=>{
       try{
@@ -24,7 +24,12 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
         setuser(res.data.user);
         setaddresses(res.data.addresses);
 
-        const res_CWL = await axios.get('http://localhost:3000/user/getCWL')
+        const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
+          withCredentials:true
+        });
+
+        setWishlistCount(res_CWL.data.wish_length);
+        setOrdersCount(res_CWL.data.orderHistory_length);
       } catch(error){
         console.log(error);
       }
@@ -32,42 +37,42 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
     fetchProfile();
   }, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const mockUser = {
-          name: 'Ada Lovelace',
-          joinYear: '2022',
-          ordersCount: 8,
-          wishlistcount: 5,
-          email: 'ada.lovelace@example.com',
-          phone: '+44 1234 567890',
-          stylePref: 'Cyberpunk Royalty',
-          username: 'lovelace42',
-          age: 29,
-        };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const mockUser = {
+  //         name: 'Ada Lovelace',
+  //         joinYear: '2022',
+  //         ordersCount: 8,
+  //         wishlistcount: 5,
+  //         email: 'ada.lovelace@example.com',
+  //         phone: '+91 7814345388',
+  //         stylePref: 'Cyberpunk',
+  //         username: 'lovelace42',
+  //         age: 29,
+  //       };
 
-        setuser(mockUser);
-        setcreditpoints(420);
-        setcards([
-          { number: '**** **** **** 1234', expiry: '12/26' },
-          { number: '**** **** **** 5678', expiry: '11/25' },
-        ]);
-        setupiIds([
-          { id: 'ada@ybl' },
-          { id: 'lovelace@upi' },
-        ]);
-        setaddresses([
-          { label: 'Home', address: '42 Binary Street, Algorithmland' },
-          { label: 'Work', address: '101 Logic Gate Avenue, Code City' },
-        ]);
-      } catch (error) {
-        console.log(error);
-      }
-    };
+  //       setuser(mockUser);
+  //       setcreditpoints(420);
+  //       setcards([
+  //         { number: '**** **** **** 1234', expiry: '12/26' },
+  //         { number: '**** **** **** 5678', expiry: '11/25' },
+  //       ]);
+  //       setupiIds([
+  //         { id: 'ada@ybl' },
+  //         { id: 'lovelace@upi' },
+  //       ]);
+  //       setaddresses([
+  //         { label: 'Home', address: '42 Binary Street' },
+  //         { label: 'Work', address: '101 Code City' },
+  //       ]);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   const adding = (setter, item) =>
     setter(prev => [...prev, item]);
@@ -108,11 +113,11 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
         <div className="profilestats">
           <div className="statcard" onClick={() => nav('/orders')}>
             <Package size={32} />
-            <h3>{user.ordersCount} Orders</h3>
+            <h3>{ordersCount} Orders</h3>
           </div>
           <div className="statcard" onClick={() => nav('/wishlist')}>
             <Heart size={32} />
-            <h3>{user.wishlistcount} Wishlist Items</h3>
+            <h3>{wishlistCount} Wishlist Items</h3>
           </div>
           <div className="statcard">
             <Star size={32} />
