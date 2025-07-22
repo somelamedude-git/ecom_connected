@@ -102,7 +102,7 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
             <div className="avatar"><User size={48} /></div>
             <div>
               <h1 className="profilename"><input defaultValue={user.name} className='editableBox'/></h1>
-              <p className="username">@{user.username}</p>
+              <p className="username">@{user.username}</p> {/*shouldn't be able to be edited*/}
               <p className="membersince">Member since {user.joinYear}</p>
               <button className="editb" onClick={() => nav('/profile/edit')}>
                 <Edit size={16} /> Edit Profile
@@ -131,19 +131,21 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
           <div className="infogrid">
             <div className="infoitem">
               <label>Email</label>
-              <p>{user.email}</p>
+              <p><input className='editableBox' defaultValue={user.email}/></p>
             </div>
             <div className="infoitem">
               <label>Phone</label>
-              <p>{user.phone}</p>
+              <p><input defaultValue={user.phone} className='editableBox'/></p>
             </div>
             <div className="infoitem">
               <label>Preferred Style</label>
-              <p>{user.stylePref}</p>
+              <p><input defaultValue={user.stylePref} className='editableBox'/></p>
             </div>
             <div className="infoitem">
               <label>Age</label>
-              <p>{user.age}</p>
+              <p>
+                <input defaultValue={user.age} className='editableBox'/>
+              </p>
             </div>
           </div>
         </div>
