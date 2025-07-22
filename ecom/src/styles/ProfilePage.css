@@ -210,3 +210,28 @@
   color: #9ca3af;
   font-size: 18px;
 }
+
+
+.editableBox {
+  background: transparent;
+  border: 0.5px solid #ffd70030; 
+  color: inherit; 
+  font-family: inherit; 
+  font-size: inherit; 
+  font-weight: inherit;
+  outline: none; 
+  padding: 2px 4px; 
+  border-radius: 2px; 
+  transition: border-color 0.2s ease; 
+  width: fit-content; 
+  min-width: 0; 
+}
+
+.editableBox:focus {
+  border-color: #ffd70060; 
+  box-shadow: 0 0 0 1px rgba(255, 215, 0, 0.1); 
+}
+
+.editableBox:hover {
+  border-color: #ffd70050;
+}
