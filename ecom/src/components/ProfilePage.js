@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User, Edit, Package, Heart, Star, CreditCard, Wallet, MapPin, Plus } from 'lucide-react';
+import { toast } from 'react-toastify';
 import Header from './Header';
 import axios from 'axios';
 import '../styles/ProfilePage.css';
@@ -15,6 +16,34 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const [wishlistCount, setWishlistCount] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
   const [editedItems, setEditedItems] = useState([]);
+  const [editingEnabled, setEditingEnabled] = useState(false);
+
+  const makeEditable = () => {
+    setEditingEnabled(true);
+    
+       toast.success("You can edit your info now", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      style: {
+        background: '#111827',
+        border: '1px solid #374151',
+        color: '#fff',
+        fontWeight: '600',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(251, 219, 36, 0.1)',
+        fontSize: '16px',
+      },
+      progressStyle: {
+        background: 'linear-gradient(135deg, #fbdb24, #ee5a24)',
+      },
+      icon: '✨',
+    });
+  };
 
 // useEffect(() => {
 //   const fetchProfile = async () => {
@@ -101,10 +130,10 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
           <div className="profileinfo">
             <div className="avatar"><User size={48} /></div>
             <div>
-              <h1 className="profilename"><input defaultValue={user.name} className='editableBox'/></h1>
+              <h1 className="profilename"><input defaultValue={user.name} className='editableBox' readOnly={!editingEnabled}/></h1>
               <p className="username">@{user.username}</p> {/*shouldn't be able to be edited*/}
               <p className="membersince">Member since {user.joinYear}</p>
-              <button className="editb" onClick={() => nav('/profile/edit')}>
+              <button className="editb" onClick={makeEditable}>
                 <Edit size={16} /> Edit Profile
               </button>
             </div>
@@ -131,20 +160,20 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
           <div className="infogrid">
             <div className="infoitem">
               <label>Email</label>
-              <p><input className='editableBox' defaultValue={user.email}/></p>
+              <p><input className='editableBox' defaultValue={user.email} readOnly={!editingEnabled}/></p>
             </div>
             <div className="infoitem">
               <label>Phone</label>
-              <p><input defaultValue={user.phone} className='editableBox'/></p>
+              <p><input defaultValue={user.phone} className='editableBox' readOnly={!editingEnabled}/></p>
             </div>
             <div className="infoitem">
               <label>Preferred Style</label>
-              <p><input defaultValue={user.stylePref} className='editableBox'/></p>
+              <p><input defaultValue={user.stylePref} className='editableBox' readOnly={!editingEnabled}/></p>
             </div>
             <div className="infoitem">
               <label>Age</label>
               <p>
-                <input defaultValue={user.age} className='editableBox'/>
+                <input defaultValue={user.age} className='editableBox' readOnly={!editingEnabled}/>
               </p>
             </div>
           </div>
