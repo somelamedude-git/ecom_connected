@@ -25,6 +25,8 @@ useEffect(()=>{
       setcartitems(cartRes.data.cart_items); // cartRes has cart_items, cart_items has cart, which then has product id, quantity andthe size
     } catch(err){
       console.log(err);
+    }finally{
+      setloading(false);
     }
   } 
    loadData();
@@ -35,16 +37,16 @@ useEffect(()=>{
     const item = cartitems.find(i=>i.product._id===item_id && i.size===item_size);
     if(item.quantity<set_quantity){
       await axios.patch(`http://localhost:3000/cart/increment/${item_id}`, 
-        {withCredentials:true},
-         { size: item_size }
+         { size: item_size },
+         {withCredentials:true}
       )
     }
 
     else if((item.quantity>set_quantity) && set_quantity!==0){
-      await axios.patch(`http://localhost:3000/cart/decrement/${item_id}`,{
-        withCredentials:true,
-        data: { size: item_size}
-      });
+      await axios.patch(`http://localhost:3000/cart/decrement/${item_id}`,
+        { size: item_size},
+        {withCredentials:true}
+      );
     }
 
     else if(set_quantity===0){
@@ -52,17 +54,16 @@ useEffect(()=>{
     }
 
     setcartitems(prev =>
-      prev.map(i =>
-        i.product._id === item_id && i.size === item_size
-          ? { ...i, quantity: set_quantity }
-          : i
-      )
-    );
+  prev.map(i =>
+    i.product._id === item_id && i.size === item_size
+      ? { ...i, quantity: set_quantity }
+      : i
+  )
+);
+
   } catch(error){
     console.log(error);
-  } finally{
-    setloading(false);
-  }
+  } 
  }
 
  const removeItem = async(item_id, item_size)=>{
