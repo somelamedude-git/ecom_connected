@@ -32,7 +32,8 @@ useEffect(()=>{
 
  const updateQuantity = async(item_id, item_size, set_quantity)=>{
   try{
-    if(cartitems.quantity<set_quantity){
+    const item = cartitems.find(i=>i.product._id===item_id && i.size===item_size);
+    if(item.quantity<set_quantity){
       await axios.patch(`http://localhost:3000/cart/increment/${item_id}`, {
         withCredentials:true,
         data: { size: item_size }
@@ -99,15 +100,15 @@ useEffect(()=>{
                         </div>
                         <div className="itemactions">
                           <div className="qtycontrol">
-                            <button onClick={() => updateQuantity(item.product._id, item.quantity - 1)}>
+                            <button onClick={() => updateQuantity(item.product._id, item.size,item.quantity - 1)}>
                               <Minus size={16} /></button>
                             <span>{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.product._id, item.quantity + 1)}>
+                            <button onClick={() => updateQuantity(item.product._id, item.size, item.quantity + 1)}>
                               <Plus size={16} /></button>
                           </div>
                           <button
                             className="removeb"
-                            onClick={() => removeItem(item.product._id)}
+                            onClick={() => removeItem(item.product._id, item.size)}
                           >
                             <Trash2 size={20} />
                           </button>
