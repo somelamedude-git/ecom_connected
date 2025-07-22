@@ -235,3 +235,21 @@
 .editableBox:hover {
   border-color: #ffd70050;
 }
+
+.saveb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, hsl(45, 100%, 85%) 0%, hsl(35, 90%, 68%) 100%);
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.3s;
+  color: #000;
+}
+
+.saveb:hover {
+  opacity: 0.9;
+}

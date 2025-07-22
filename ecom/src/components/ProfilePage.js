@@ -21,7 +21,8 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const makeEditable = () => {
     setEditingEnabled(true);
     
-       toast.success("You can edit your info now", {
+    // Premium black and gold toast notification matching your aesthetic
+    toast.success("You can edit your info now, scroll to bottom to save changes", {
       position: "top-right",
       autoClose: 3000,
       hideProgressBar: false,
@@ -44,6 +45,10 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
       icon: '✨',
     });
   };
+
+  const makeNotEditable = ()=>{
+    setEditingEnabled(false);
+  }
 
 // useEffect(() => {
 //   const fetchProfile = async () => {
@@ -201,6 +206,14 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
             </div>
           </div>
         ))}
+
+        {editingEnabled && (
+          <div className="save-section">
+            <button className="saveb" onClick={makeNotEditable}>
+              Save Changes
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
