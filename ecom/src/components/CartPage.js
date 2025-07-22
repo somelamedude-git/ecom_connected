@@ -45,6 +45,14 @@ useEffect(()=>{
         withCredentials:true,
         data: { size: item_size}
       });
+
+      setcartitems(prev =>
+      prev.map(i =>
+        i.product._id === item_id && i.size === item_size
+          ? { ...i, quantity: set_quantity }
+          : i
+      )
+    );
     }
   } catch(error){
     console.log(error);
