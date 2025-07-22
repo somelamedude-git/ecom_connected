@@ -12,7 +12,6 @@ import axios from 'axios';
 function Header({ menumove }) {
   const navigate = useNavigate();
   const location = useLocation();
-
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const[ loggedin, setLoggedin] = useState(false);

@@ -12,28 +12,22 @@ function CartPage({ navigate }) {
   const [promoon, setpromoon] = useState(false);
   const [loading, setloading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [itemsRes, optionsRes] = await Promise.all([
-          fetch('cart wala api endpoint'),
-          fetch('delivery options wala api endpoint'),
-          // const deliopt = [
-          // { id: 'standard', name: 'Standard Delivery', time: '5-7 business days', price: 0 },
-          // { id: 'express', name: 'Express Delivery', time: '2-3 business days', price: 15.99 },
-          // { id: 'overnight', name: 'Overnight Delivery', time: 'Next business day', price: 29.99 }
-          // ];
-        ]);
-        const [items, options] = await Promise.all([itemsRes.json(), optionsRes.json()]);
-        setcartitems(items);
-        setdeliopts(options);
-      } catch (err) {
-        console.error('Error fetching cart data:', err);
-      } finally {
-        setloading(false);
-      }
+useEffect(()=>{
+  const loadData = async()=>{
+    try{
+      const [cartRes, deliveryRes] = await Promise.all([ // here now in cartRes, we get carttems jismein sab details hain and the cart length, we map it
+        axios.get('http://localhost:3000/cart/getItems', {
+          withCredentials:true
+        }),
+        axios.get() // Yet to write an API for this
+      ]);
+
+      setcartitems(cartRes.data.cart_items); // cartRes has cart_items, cart_items has cart, which then has product id, quantity andthe size
+    } catch(err){
+      console.log(err);
     }
-    loadData();
+  } 
+   loadData();
   }, []);
 
   const updateQuantity = (id, qty) => {
@@ -82,25 +76,25 @@ function CartPage({ navigate }) {
                 ) : (
                   //I'm take oarameters as name, id and image and then size n color
                   cartitems.map(item => (
-                    <div key={item.id} className="cart-item">
+                    <div key={item.product._id} className="cart-item">
                       <div className="itemcontent">
-                        <img src={item.image /*orwhatever goes here*/} alt={item.name} className="itemimg" />
+                        <img src={item.product.image /*orwhatever goes here*/} alt={item.product.name} className="itemimg" />
                         <div className="iteminfo">
-                          <h3>{item.name}</h3>
-                          <div>Size: {item.size} • Color: {item.color}</div>
+                          <h3>{item.product.name}</h3>
+                          <div>Size: {item.size} • Color: {item.product.color}</div>
                           <div className="itemprice">${item.price.toFixed(2)}</div>
                         </div>
                         <div className="itemactions">
                           <div className="qtycontrol">
-                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)}>
+                            <button onClick={() => updateQuantity(item.product._id, item.quantity - 1)}>
                               <Minus size={16} /></button>
                             <span>{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>
+                            <button onClick={() => updateQuantity(item.product._id, item.quantity + 1)}>
                               <Plus size={16} /></button>
                           </div>
                           <button
                             className="removeb"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeItem(item.product._id)}
                           >
                             <Trash2 size={20} />
                           </button>
