@@ -32,14 +32,20 @@ useEffect(()=>{
 
   const updateQuantity = (id, qty) => {
     if (qty < 1) return removeItem(id);
-    setcartitems(prev => prev.map(i => (i.id === id ? { ...i, quantity: qty } : i)));
+    setcartitems(prev => prev.map(i => (i.product._id === id ? { ...i, quantity: qty } : i)));
 
   };
 
-  const removeItem = id => {
-    setcartitems(prev => prev.filter(i => i.id !== id));
-//remove call
-  };
+ const removeItem = async(item_id, item_size)=>{
+  try{
+    await axios.delete(`http://localhost:3000/cart/deleteItem/${item_id}`,{
+      data: { size: item_size },
+      withCredentials:true
+    })
+  } catch(err){
+    console.log(err);//for now
+  }
+ }
 
 //product page to cart page wala add krna he yahan nahi he
 
