@@ -30,11 +30,18 @@ useEffect(()=>{
    loadData();
   }, []);
 
-  const updateQuantity = (id, qty) => {
-    if (qty < 1) return removeItem(id);
-    setcartitems(prev => prev.map(i => (i.product._id === id ? { ...i, quantity: qty } : i)));
-
-  };
+ const updateQuantity = async(item_id, item_size, set_quantity)=>{
+  try{
+    if(cartitems.quantity<set_quantity){
+      await axios.patch(`http://localhost:3000/cart/increment/${item_id}`, {
+        withCredentials:true,
+        data: { size: item_size }
+      })
+    }
+  } catch(error){
+    console.log(error);
+  }
+ }
 
  const removeItem = async(item_id, item_size)=>{
   try{
