@@ -39,6 +39,13 @@ useEffect(()=>{
         data: { size: item_size }
       })
     }
+
+    else if(item.quantity>set_quantity){
+      await axios.patch(`http:///localhost:3000/cart/decrement/${item_id}`,{
+        withCredentials:true,
+        data: { size: item_size}
+      });
+    }
   } catch(error){
     console.log(error);
   }
