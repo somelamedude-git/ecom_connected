@@ -11,19 +11,55 @@ function WishlistPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await fetch('api');
-        if (!res.ok) throw new Error('Fetch failed T^T');
-        setWishlist(await res.json());
-      } catch (e) {
-        console.error(e);
-      } finally {
-        setLoading(false);
-      }
+  async function load() {
+    try {
+      // Uncomment this once you have real API
+      // const res = await fetch('api');
+      // if (!res.ok) throw new Error('Fetch failed T^T');
+      // setWishlist(await res.json());
+
+      // MOCK DATA
+      setWishlist([
+        {
+          id: 'mock1',
+          name: 'Black Oversized T-Shirt',
+          image: 'https://via.placeholder.com/80',
+          color: 'Black',
+          size: 'L',
+          price: 24.99,
+          inStock: true
+        },
+        {
+          id: 'mock2',
+          name: 'Chunky Sneakers',
+          image: 'https://via.placeholder.com/80',
+          color: 'White',
+          size: '9',
+          price: 89.99,
+          inStock: false
+        }
+      ]);
+
+      setSaved([
+        {
+          id: 'mock3',
+          name: 'Denim Jacket',
+          image: 'https://via.placeholder.com/80',
+          color: 'Blue',
+          size: 'M',
+          price: 59.99,
+          inStock: false
+        }
+      ]);
+
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
     }
-    load();
-  }, []);
+  }
+  load();
+}, []);
 //saved for later wala part
   const remove = async (id, fromSaved = false) => {
     try {

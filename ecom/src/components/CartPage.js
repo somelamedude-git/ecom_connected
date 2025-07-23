@@ -83,7 +83,7 @@ useEffect(()=>{
     if (promoCode.trim().toLowerCase() === 'clique20') setpromoon(true);
   };
 
-  const subtotal = cartitems.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const subtotal = cartitems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
   const deliveryPrice = deliopts.find(o => o.id === selecdeli)?.price || 0;
   const discount = promoon ? subtotal * 0.2 : 0;
   const total = subtotal + deliveryPrice - discount;
@@ -118,7 +118,7 @@ useEffect(()=>{
                         <div className="iteminfo">
                           <h3>{item.product.name}</h3>
                           <div>Size: {item.size} • Color: {item.product.color}</div>
-                          <div className="itemprice">${item.price.toFixed(2)}</div>
+                          <div className="itemprice">${item.product.price.toFixed(2)}</div>
                         </div>
                         <div className="itemactions">
                           <div className="qtycontrol">
