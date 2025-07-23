@@ -15,13 +15,53 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
   const [addresses, setaddresses] = useState([]);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [ordersCount, setOrdersCount] = useState(0);
-  const [editedItems, setEditedItems] = useState([]);
   const [editingEnabled, setEditingEnabled] = useState(false);
+  const [formData, setFormData ] = useState({
+    name: '',
+    email : '',
+    age: '',
+    style:'',
+    phone: ''
+  });
+
+ const handleSave = async () => {
+  try {
+    await axios.patch('http://localhost:3000/user/editProfile', formData, {
+      withCredentials: true
+    });
+    toast.success("Profile updated successfully!", {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      style: {
+        background: '#111827',
+        border: '1px solid #374151',
+        color: '#fff',
+        fontWeight: '600',
+        borderRadius: '12px',
+        boxShadow: '0 8px 32px rgba(251, 219, 36, 0.1)',
+        fontSize: '16px',
+      },
+      progressStyle: {
+        background: 'linear-gradient(135deg, #fbdb24, #ee5a24)',
+      },
+      icon: '✨',
+    });
+    setuser(prev => ({ ...prev, ...formData }));
+    setEditingEnabled(false);
+  } catch (err) {
+    toast.error("Failed to update profile.");
+    console.error(err);
+  }
+};
 
   const makeEditable = () => {
     setEditingEnabled(true);
     
-    // Premium black and gold toast notification matching your aesthetic
     toast.success("You can edit your info now, scroll to bottom to save changes", {
       position: "top-right",
       autoClose: 3000,
@@ -46,9 +86,14 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
     });
   };
 
-  const makeNotEditable = ()=>{
-    setEditingEnabled(false);
-  }
+    const handleInputChange = (e) => {
+      
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+    console.log(e.target.value);
+  };
 
 // useEffect(() => {
 //   const fetchProfile = async () => {
@@ -135,7 +180,9 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
           <div className="profileinfo">
             <div className="avatar"><User size={48} /></div>
             <div>
-              <h1 className="profilename"><input defaultValue={user.name} className='editableBox' readOnly={!editingEnabled}/></h1>
+              <h1 className="profilename"><input type='text' defaultValue={user.name} className='editableBox' readOnly={!editingEnabled}
+              onChange={handleInputChange}
+              /></h1>
               <p className="username">@{user.username}</p> {/*shouldn't be able to be edited*/}
               <p className="membersince">Member since {user.joinYear}</p>
               <button className="editb" onClick={makeEditable}>
@@ -165,20 +212,28 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
           <div className="infogrid">
             <div className="infoitem">
               <label>Email</label>
-              <p><input className='editableBox' defaultValue={user.email} readOnly={!editingEnabled}/></p>
+              <p><input type='email' className='editableBox' defaultValue={user.email} readOnly={!editingEnabled}
+              onChange={handleInputChange} // validation logic to be added
+              /></p>
             </div>
             <div className="infoitem">
               <label>Phone</label>
-              <p><input defaultValue={user.phone} className='editableBox' readOnly={!editingEnabled}/></p>
+              <p><input type='tel' defaultValue={user.phone} className='editableBox' readOnly={!editingEnabled}
+              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              /></p>
             </div>
             <div className="infoitem">
               <label>Preferred Style</label>
-              <p><input defaultValue={user.stylePref} className='editableBox' readOnly={!editingEnabled}/></p>
+              <p><input defaultValue={user.stylePref} className='editableBox' readOnly={!editingEnabled}
+              onChange={handleInputChange}
+              /></p>
             </div>
             <div className="infoitem">
               <label>Age</label>
               <p>
-                <input defaultValue={user.age} className='editableBox' readOnly={!editingEnabled}/>
+                <input type='Number' deafaultValue={user.age} className='editableBox' readOnly={!editingEnabled}
+                onChange={handleInputChange}
+                />
               </p>
             </div>
           </div>
@@ -209,7 +264,7 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
 
         {editingEnabled && (
           <div className="save-section">
-            <button className="saveb" onClick={makeNotEditable}>
+            <button className="saveb" onClick={handleSave}>
               Save Changes
             </button>
           </div>
