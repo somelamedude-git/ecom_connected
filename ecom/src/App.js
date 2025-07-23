@@ -1,13 +1,13 @@
 import './App.css';
-import ProfilePage from './components/ProfilePage';
+import WishlistPage from './components/WishlistPage';
 import { ToastContainer } from 'react-toastify';
 
 
 function App() {
   return (
     <div className='App'>
-     <ProfilePage/>
-     <ToastContainer />
+     <WishlistPage/>
+     {/* <ToastContainer /> */}
     </div>
   );
 }
