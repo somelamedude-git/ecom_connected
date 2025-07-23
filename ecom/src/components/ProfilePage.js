@@ -95,67 +95,31 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
     console.log(e.target.value);
   };
 
-// useEffect(() => {
-//   const fetchProfile = async () => {
-//     try {
-//       const [profileRes, cwlRes] = await Promise.all([
-//         axios.get('http://localhost:3000/user/profile', {
-//           withCredentials: true,
-//         }),
-//         axios.get('http://localhost:3000/user/getCWL', {
-//           withCredentials: true,
-//         }),
-//       ]);
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const [profileRes, cwlRes] = await Promise.all([
+        axios.get('http://localhost:3000/user/profile', {
+          withCredentials: true,
+        }),
+        axios.get('http://localhost:3000/user/getCWL', {
+          withCredentials: true,
+        }),
+      ]);
 
-//       setuser(profileRes.data.user);
-//       setaddresses(profileRes.data.addresses);
+      setuser(profileRes.data.user);
+      setaddresses(profileRes.data.addresses);
       
-//       setWishlistCount(cwlRes.data.wish_length);
-//       setOrdersCount(cwlRes.data.orderHistory_length);
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
+      setWishlistCount(cwlRes.data.wish_length);
+      setOrdersCount(cwlRes.data.orderHistory_length);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-//   fetchProfile();
-// }, []);
+  fetchProfile();
+}, []);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const mockUser = {
-          name: 'Ada Lovelace',
-          joinYear: '2022',
-          ordersCount: 8,
-          wishlistcount: 5,
-          email: 'ada.lovelace@example.com',
-          phone: '+91 7814345388',
-          stylePref: 'Cyberpunk',
-          username: 'lovelace42',
-          age: 29,
-        };
-
-        setuser(mockUser);
-        setcreditpoints(420);
-        setcards([
-          { number: '**** **** **** 1234', expiry: '12/26' },
-          { number: '**** **** **** 5678', expiry: '11/25' },
-        ]);
-        setupiIds([
-          { id: 'ada@ybl' },
-          { id: 'lovelace@upi' },
-        ]);
-        setaddresses([
-          { label: 'Home', address: '42 Binary Street' },
-          { label: 'Work', address: '101 Code City' },
-        ]);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   const adding = (setter, item) =>
     setter(prev => [...prev, item]);
