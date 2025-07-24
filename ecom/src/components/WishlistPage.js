@@ -87,10 +87,10 @@ function WishlistPage() {
 
   const remove = async (product_id, item_size) => {
     try {
-      await axios.delete(`http://localhost:3000/wishlist/deleteItem/${product_id}`, {
-  data: { size: item_size },
-  withCredentials: true
-});
+//       await axios.delete(`http://localhost:3000/wishlist/deleteItem/${product_id}`, {
+//   data: { size: item_size },
+//   withCredentials: true
+// });
       setWishlist(wishlist.filter(i => i.item.product._id !== product_id));
     } catch (e) {
       console.error(e);
@@ -98,7 +98,8 @@ function WishlistPage() {
   };
 
   const addCart = (item) => {
-    fetch().catch(console.error); 
+    // fetch().catch(console.error); 
+    remove(item.item.product._id, item.item.size)
     alert(`${item.item.product.name} added to cart`);
   };
 
