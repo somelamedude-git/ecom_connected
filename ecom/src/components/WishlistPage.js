@@ -130,18 +130,21 @@ function WishlistPage() {
 
   const remove = async (product_id, item_size) => {
     try {
-//       await axios.delete(`http://localhost:3000/wishlist/deleteItem/${product_id}`, {
-//   data: { size: item_size },
-//   withCredentials: true
-// });
+      await axios.delete(`http://localhost:3000/wishlist/deleteItem/${product_id}`, {
+  data: { size: item_size },
+  withCredentials: true
+});
       setWishlist(wishlist.filter(i => !(i.item.product._id == product_id && i.item.size===item_size)));
     } catch (e) {
       console.error(e);
     }
   };
 
-  const addCart = (item) => {
-    // fetch().catch(console.error); 
+  const addCart = async (item) => {
+    await axios.post(`http://localhost:3000/cart/addItem/${item.item.product._id}`, {
+      data: {size_: item.item.size},
+      withCredentials: true
+    })
     remove(item.item.product._id, item.item.size);
     alert(`${item.item.product.name} added to cart`);
   };
