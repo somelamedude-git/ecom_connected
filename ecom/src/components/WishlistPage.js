@@ -1,91 +1,102 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Heart, ShoppingBag, Trash2, Clock, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Heart, ShoppingBag, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import '../styles/WishlistPage.css';
+import axios from 'axios';
 
 function WishlistPage() {
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState([]);
-  const [saved, setSaved] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // useEffect(() => {
+  //   async function load() {
+  //     try {
+  //       const res = await axios.get('http://localhost:3000/wishlist/getItems', {  
+  //         withCredentials: true,
+  //       });
+  //       setWishlist(res.data.wish_items_info); // res.data is giving us an array, jismein we have item and inStock, item further has the product and size
+  //     } catch (e) {
+  //       console.error(e);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   }
+  //   load();
+  // }, []);
 
   useEffect(() => {
   async function load() {
     try {
-      // Uncomment this once you have real API
-      // const res = await fetch('api');
-      // if (!res.ok) throw new Error('Fetch failed T^T');
-      // setWishlist(await res.json());
-
-      // MOCK DATA
-      setWishlist([
+      const mockData = [
         {
-          id: 'mock1',
-          name: 'Black Oversized T-Shirt',
-          image: 'https://via.placeholder.com/80',
-          color: 'Black',
-          size: 'L',
-          price: 24.99,
-          inStock: true
+          inStock: true,
+          item: {
+            size: "M",
+            product: {
+              _id: "1",
+              name: "Midnight Hoodie",
+              color: "Black",
+              price: 59.99,
+              image: "https://via.placeholder.com/100?text=Hoodie"
+            }
+          }
         },
         {
-          id: 'mock2',
-          name: 'Chunky Sneakers',
-          image: 'https://via.placeholder.com/80',
-          color: 'White',
-          size: '9',
-          price: 89.99,
-          inStock: false
-        }
-      ]);
-
-      setSaved([
+          inStock: false,
+          item: {
+            size: "L",
+            product: {
+              _id: "2",
+              name: "Skyline T-shirt",
+              color: "Blue",
+              price: 24.50,
+              image: "https://via.placeholder.com/100?text=T-shirt"
+            }
+          }
+        },
         {
-          id: 'mock3',
-          name: 'Denim Jacket',
-          image: 'https://via.placeholder.com/80',
-          color: 'Blue',
-          size: 'M',
-          price: 59.99,
-          inStock: false
+          inStock: true,
+          item: {
+            size: "S",
+            product: {
+              _id: "3",
+              name: "Cloud Joggers",
+              color: "Gray",
+              price: 39.99,
+              image: "https://via.placeholder.com/100?text=Joggers"
+            }
+          }
         }
-      ]);
+      ];
 
+      // Simulate async
+      await new Promise(resolve => setTimeout(resolve, 500));
+      setWishlist(mockData);
     } catch (e) {
       console.error(e);
     } finally {
       setLoading(false);
     }
   }
+
   load();
 }, []);
-//saved for later wala part
-  const remove = async (id, fromSaved = false) => {
+
+
+  const remove = async (id) => {
     try {
-      await fetch();
-      const updater = fromSaved
-        ? () => setSaved(saved.filter(i => i.id !== id))
-        : () => setWishlist(wishlist.filter(i => i.id !== id));
-      updater();
+      await fetch(); 
+      setWishlist(wishlist.filter(i => i.item.product._id !== id));
     } catch (e) {
       console.error(e);
     }
   };
 
-  const move = (item, toSaved) => {
-    if (toSaved) {
-      setSaved([...saved, item]);
-      setWishlist(wishlist.filter(i => i.id !== item.id));
-    } else {
-      setWishlist([...wishlist, item]);
-      setSaved(saved.filter(i => i.id !== item.id));
-    }
-  };
-
   const addCart = (item) => {
-    fetch().catch(console.error);
-    alert(`${item.name} added to cart`);
+    fetch().catch(console.error); 
+    alert(`${item.item.product.name} added to cart`);
   };
 
   const addAll = () => {
@@ -93,18 +104,23 @@ function WishlistPage() {
     alert('Added all in-stock items to cart!');
   };
 
-  const total = wishlist.reduce((sum, i) => sum + i.price, 0);
+  const total = wishlist.reduce((sum, i) => sum + i.item.product.price, 0);
   const inStockCount = wishlist.filter(i => i.inStock).length;
 
   if (loading) return <div className="loading">Loading...</div>;
 
   return (
     <div className="cart-container">
-      <Header navigate={navigate} currentPage="wishlist" cartCount={0} wishlistCount={wishlist.length} /> {/*Fix this*/}
+      <Header
+        navigate={navigate}
+        currentPage="wishlist"
+        cartCount={0}
+        wishlistCount={wishlist.length}
+      /> {/* Fix this */}
 
       <div className="cart-main">
         <button className="backb" onClick={() => navigate('/')}>
-          <ArrowLeft size={20}/> Continue Shopping
+          <ArrowLeft size={20} /> Continue Shopping
         </button>
 
         <div className="cartgrid">
@@ -112,88 +128,87 @@ function WishlistPage() {
             <h1>My Wishlist</h1>
             {!wishlist.length ? (
               <div className="emptycart">
-                <Heart className="emptycarticon" size={64}/>
+                <Heart className="emptycarticon" size={64} />
                 <h3>Your wishlist is empty</h3>
                 <p className="emptycarttext">Save items you love for later</p>
               </div>
             ) : (
               wishlist.map(item => (
-                <div key={item.id} className="cartitem">
+                <div key={item.item.product._id} className="cartitem">
                   <div className="itemcontent">
-                    <img src={item.image} alt="" className="itemimg" />
+                    <img
+                      src={item.item.product.image}
+                      alt=""
+                      className="itemimg"
+                    />
                     <div className="iteminfo">
-                      <h3>{item.name}</h3>
-                      <div>Size: {item.size} • Color: {item.color}</div>
-                      <div className="itemprice">${item.price.toFixed(2)}</div>
+                      <h3>{item.item.product.name}</h3>
+                      <div>
+                        Size: {item.item.size} • Color:{' '}
+                        {item.item.product.color}
+                      </div>
+                      <div className="itemprice">
+                        ${item.item.product.price.toFixed(2)}
+                      </div>
                     </div>
                     <div className="itemactions">
-                      <button className="addtocartb" disabled={!item.inStock} onClick={() => addCart(item)}>
-                        <ShoppingBag size={16}/> Add to Cart
+                      <button
+                        className="addtocartb"
+                        disabled={!item.inStock}
+                        onClick={() => addCart(item)}
+                      >
+                        <ShoppingBag size={16} /> Add to Cart
                       </button>
-                      {!item.inStock && (
-                        <button className="moveb" onClick={() => move(item, true)}>
-                          <Clock size={14}/> Save for Later
-                        </button>
-                      )}
-                      <button className="removeb" onClick={() => remove(item.id)}>
-                        <Trash2 size={20}/>
+                      <button
+                        className="removeb"
+                        onClick={() => remove(item.item.product._id)}
+                      >
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </div>
                 </div>
               ))
             )}
-
-            {saved.length > 0 && (
-              <>
-                <div className="aflsec">
-                  <div className="sectionheader">
-                    <Clock size={24}/> <h2 className="sectiontitle">Saved for Later ({saved.length})</h2>
-                  </div>
-                  {saved.map(item => (
-                    <div key={item.id} className="cartitem">
-                      <div className="itemcontent">
-                        <img src={item.image} alt="" className="itemimg" />
-                        <div className="iteminfo">
-                          <h3>{item.name}</h3>
-                          <div>Size: {item.size}</div>
-                          <div className="itemprice">${item.price.toFixed(2)}</div>
-                        </div>
-                        <div className="itemactions">
-                          <button className="moveb moveToWL" onClick={() => move(item, false)}>
-                            <RotateCcw size={14}/> Move to Wishlist
-                          </button>
-                          <button className="removeb" onClick={() => remove(item.id, true)}>
-                            <Trash2 size={20}/>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
           </div>
 
           <div className="cartsidebar">
             <div className="sidebarcard">
-              <h3><Heart size={20}/> Wishlist Summary</h3>
+              <h3>
+                <Heart size={20} /> Wishlist Summary
+              </h3>
               <div className="summary">
-                <div className="row"><span>Total Items</span><span>{wishlist.length}</span></div>
-                <div className="row"><span>In Stock</span><span>{inStockCount}</span></div>
-                <div className="row"><span>Saved for Later</span><span>{saved.length}</span></div>
-                <div className="row total"><span>Total Value</span><span className="totalval">${total.toFixed(2)}</span></div>
+                <div className="row">
+                  <span>Total Items</span>
+                  <span>{wishlist.length}</span>
+                </div>
+                <div className="row">
+                  <span>In Stock</span>
+                  <span>{inStockCount}</span>
+                </div>
+                <div className="row total">
+                  <span>Total Value</span>
+                  <span className="totalval">${total.toFixed(2)}</span>
+                </div>
               </div>
-              <button className="checkoutb" disabled={!inStockCount} onClick={addAll}>
+              <button
+                className="checkoutb"
+                disabled={!inStockCount}
+                onClick={addAll}
+              >
                 Add All to Cart ({inStockCount})
               </button>
-              <button className="secondaryb" onClick={() => navigate('/products')}>
+              <button
+                className="secondaryb"
+                onClick={() => navigate('/products')}
+              >
                 Continue Shopping
               </button>
             </div>
+
             <div className="sidebarcard">
               <h3>Recently Viewed</h3>
-              <p className="emptycarttext">Items you hv recently viewed.</p>
+              <p className="emptycarttext">Items you have recently viewed.</p>
             </div>
           </div>
         </div>
