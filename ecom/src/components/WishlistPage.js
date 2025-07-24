@@ -85,10 +85,13 @@ function WishlistPage() {
 }, []);
 
 
-  const remove = async (id) => {
+  const remove = async (product_id, item_size) => {
     try {
-      await fetch(); 
-      setWishlist(wishlist.filter(i => i.item.product._id !== id));
+      await axios.delete(`http://localhost:3000/wishlist/deleteItem/${product_id}`, {
+  data: { size: item_size },
+  withCredentials: true
+});
+      setWishlist(wishlist.filter(i => i.item.product._id !== product_id));
     } catch (e) {
       console.error(e);
     }

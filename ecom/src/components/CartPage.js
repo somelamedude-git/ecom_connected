@@ -36,17 +36,18 @@ useEffect(()=>{
   try{
     const item = cartitems.find(i=>i.product._id===item_id && i.size===item_size);
     if(item.quantity<set_quantity){
-      await axios.patch(`http://localhost:3000/cart/increment/${item_id}`, 
-         { size: item_size },
-         {withCredentials:true}
-      )
+     await axios.patch(`http://localhost:3000/cart/increment/${item_id}`, 
+  { size: item_size }, 
+  { withCredentials: true }
+);
     }
 
     else if((item.quantity>set_quantity) && set_quantity!==0){
-      await axios.patch(`http://localhost:3000/cart/decrement/${item_id}`,
-        { size: item_size},
-        {withCredentials:true}
-      );
+      await axios.patch(`http://localhost:3000/cart/decrement/${item_id}`, {
+  size: item_size
+}, {
+  withCredentials: true
+});
     }
 
     else if(set_quantity===0){
