@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Package, Eye, Star, ShoppingCart, TrendingUp, Filter, Search, Grid, List } from 'lucide-react';
+import axios from 'axios';
 
 const SellerProductsDashboard = () => {
   const [products, setProducts] = useState([]);
