@@ -10,122 +10,122 @@ function WishlistPage() {
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   async function load() {
-  //     try {
-  //       const res = await axios.get('http://localhost:3000/wishlist/getItems', {  
-  //         withCredentials: true,
-  //       });
-  //       setWishlist(res.data.wish_items_info); // res.data is giving us an array, jismein we have item and inStock, item further has the product and size
-  //     } catch (e) {
-  //       console.error(e);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   }
-  //   load();
-  // }, []);
-
   useEffect(() => {
-  async function load() {
-    try {
-      const mockData = [
-  {
-    inStock: true,
-    item: {
-      size: "M",
-      product: {
-        _id: "1",
-        name: "Midnight Hoodie",
-        color: "Black",
-        price: 59.99,
-        image: "https://via.placeholder.com/100?text=Hoodie"
+    async function load() {
+      try {
+        const res = await axios.get('http://localhost:3000/wishlist/getItems', {  
+          withCredentials: true,
+        });
+        setWishlist(res.data.wish_items_info); // res.data is giving us an array, jismein we have item and inStock, item further has the product and size
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setLoading(false);
       }
     }
-  },
-  {
-    inStock: false,
-    item: {
-      size: "L",
-      product: {
-        _id: "2", 
-        name: "Midnight Hoodie",
-        color: "Black",
-        price: 59.99,
-        image: "https://via.placeholder.com/100?text=Hoodie"
-      }
-    }
-  },
-  {
-    inStock: true,
-    item: {
-      size: "S",
-      product: {
-        _id: "3",
-        name: "Skyline T-shirt",
-        color: "Blue",
-        price: 24.50,
-        image: "https://via.placeholder.com/100?text=T-shirt"
-      }
-    }
-  },
-  {
-    inStock: true,
-    item: {
-      size: "M",
-      product: {
-        _id: "4", // same product ID as above
-        name: "Skyline T-shirt",
-        color: "Blue",
-        price: 24.50,
-        image: "https://via.placeholder.com/100?text=T-shirt"
-      }
-    }
-  },
-  {
-    inStock: true,
-    item: {
-      size: "XS",
-      product: {
-        _id: "5",
-        name: "Cloud Joggers",
-        color: "Gray",
-        price: 39.99,
-        image: "https://via.placeholder.com/100?text=Joggers"
-      }
-    }
-  },
+    load();
+  }, []);
 
-  {
-    inStock: true,
-    item: {
-      size: "XXXXXL",
-      product: {
-        _id: "6",
-        name: "Midnight Hoodie",
-        color: "Black",
-        price: 59.99,
-        image: "https://via.placeholder.com/100?text=Hoodie"
-      }
-    }
-  },
+//   useEffect(() => {
+//   async function load() {
+//     try {
+//       const mockData = [
+//   {
+//     inStock: true,
+//     item: {
+//       size: "M",
+//       product: {
+//         _id: "1",
+//         name: "Midnight Hoodie",
+//         color: "Black",
+//         price: 59.99,
+//         image: "https://via.placeholder.com/100?text=Hoodie"
+//       }
+//     }
+//   },
+//   {
+//     inStock: false,
+//     item: {
+//       size: "L",
+//       product: {
+//         _id: "2", 
+//         name: "Midnight Hoodie",
+//         color: "Black",
+//         price: 59.99,
+//         image: "https://via.placeholder.com/100?text=Hoodie"
+//       }
+//     }
+//   },
+//   {
+//     inStock: true,
+//     item: {
+//       size: "S",
+//       product: {
+//         _id: "3",
+//         name: "Skyline T-shirt",
+//         color: "Blue",
+//         price: 24.50,
+//         image: "https://via.placeholder.com/100?text=T-shirt"
+//       }
+//     }
+//   },
+//   {
+//     inStock: true,
+//     item: {
+//       size: "M",
+//       product: {
+//         _id: "4", // same product ID as above
+//         name: "Skyline T-shirt",
+//         color: "Blue",
+//         price: 24.50,
+//         image: "https://via.placeholder.com/100?text=T-shirt"
+//       }
+//     }
+//   },
+//   {
+//     inStock: true,
+//     item: {
+//       size: "XS",
+//       product: {
+//         _id: "5",
+//         name: "Cloud Joggers",
+//         color: "Gray",
+//         price: 39.99,
+//         image: "https://via.placeholder.com/100?text=Joggers"
+//       }
+//     }
+//   },
+
+//   {
+//     inStock: true,
+//     item: {
+//       size: "XXXXXL",
+//       product: {
+//         _id: "6",
+//         name: "Midnight Hoodie",
+//         color: "Black",
+//         price: 59.99,
+//         image: "https://via.placeholder.com/100?text=Hoodie"
+//       }
+//     }
+//   },
 
   
-];
+// ];
 
 
-      // Simulate async
-      await new Promise(resolve => setTimeout(resolve, 500));
-      setWishlist(mockData);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  }
+//       // Simulate async
+//       await new Promise(resolve => setTimeout(resolve, 500));
+//       setWishlist(mockData);
+//     } catch (e) {
+//       console.error(e);
+//     } finally {
+//       setLoading(false);
+//     }
+//   }
 
-  load();
-}, []);
+//   load();
+// }, []);
 
 
   const remove = async (product_id, item_size) => {
@@ -141,12 +141,17 @@ function WishlistPage() {
   };
 
   const addCart = async (item) => {
-    await axios.post(`http://localhost:3000/cart/addItem/${item.item.product._id}`, {
-      data: {size_: item.item.size},
-      withCredentials: true
-    })
+   try{
+     await axios.post(`http://localhost:3000/cart/addItem/${item.item.product._id}`, {
+  size_: item.item.size
+}, {
+  withCredentials: true
+});
     remove(item.item.product._id, item.item.size);
     alert(`${item.item.product.name} added to cart`);
+   } catch(error){
+    console.log(error);
+   }
   };
 
   const addAll = () => {
@@ -164,8 +169,6 @@ function WishlistPage() {
       <Header
         navigate={navigate}
         currentPage="wishlist"
-        cartCount={0}
-        wishlistCount={wishlist.length}
       /> {/* Fix this */}
 
       <div className="cart-main">

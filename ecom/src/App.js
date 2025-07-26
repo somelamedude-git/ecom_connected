@@ -1,12 +1,12 @@
 import './App.css';
-import WishlistPage from './components/WishlistPage';
+import ProductAnalytics from './components/productAnalytics';
 import { ToastContainer } from 'react-toastify';
 
 
 function App() {
   return (
     <div className='App'>
-     <WishlistPage/>
+     <ProductAnalytics/> 
      {/* <ToastContainer /> */}
     </div>
   );
