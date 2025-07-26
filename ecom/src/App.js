@@ -1,12 +1,12 @@
 import './App.css';
-import SalesHeatmap from './components/HeatMap';
+import SellerProductsDashboard from './components/productList';
 import { ToastContainer } from 'react-toastify';
 
 
 function App() {
   return (
     <div className='App'>
-     <SalesHeatmap/>
+     <SellerProductsDashboard/>
      {/* <ToastContainer /> */}
     </div>
   );

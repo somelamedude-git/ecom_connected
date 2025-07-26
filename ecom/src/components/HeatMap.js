@@ -114,6 +114,7 @@ const SalesHeatmap = () => {
         // calculateStats(mockSalesData);
         setError(null);
       } catch (err) {
+        console.log('hi');
         setError('Failed to fetch sales data');
       } finally {
         setLoading(false);
@@ -267,7 +268,6 @@ const SalesHeatmap = () => {
           </p>
         </div>
 
-        {/* Stats Cards */}
         <div className="stats-grid">
           <div className="stat-card">
             <div className="stat-icon">
@@ -310,7 +310,6 @@ const SalesHeatmap = () => {
           </div>
         </div>
 
-        {/* Year Selector */}
         <div className="year-selector">
           <select 
             value={selectedYear} 

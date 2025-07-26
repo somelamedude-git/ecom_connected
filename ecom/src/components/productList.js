@@ -14,7 +14,6 @@ const SellerProductsDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [viewMode, setViewMode] = useState('grid');
 
-  // Mock data based on your schema
   const mockProducts = [
     {
       _id: '1',
@@ -103,16 +102,15 @@ const SellerProductsDashboard = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        // In real implementation, this would be your API call
-        // const response = await fetch(`/api/seller/products?page=${currentPage}&limit=${limit}`);
-        // const data = await response.json();
+        
+        const res = await fetch(`seller/productList?page=${currentPage}&limit=${limit}`);
+        
         
         // Simulate delay
         await new Promise(resolve => setTimeout(resolve, 1000));
         
         let filteredProducts = [...mockProducts];
-        
-        // Apply search filter
+
         if (searchTerm) {
           filteredProducts = filteredProducts.filter(product =>
             product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -120,14 +118,12 @@ const SellerProductsDashboard = () => {
           );
         }
         
-        // Apply category filter
         if (filterBy !== 'all') {
           filteredProducts = filteredProducts.filter(product =>
             product.category.name.toLowerCase() === filterBy.toLowerCase()
           );
         }
         
-        // Apply sorting
         switch (sortBy) {
           case 'newest':
             filteredProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
