@@ -24,7 +24,7 @@ const ProductAnalytics = () => {
 useEffect(() => {
   const fetchAnalytics = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/api/products/${product_id}/analytics`,
+      const response = await axios.get(`http://localhost:3000/products/${product_id}/analytics`,
         {withCredentials: true}
       );
       setAnalytics(response.data.analytics);
