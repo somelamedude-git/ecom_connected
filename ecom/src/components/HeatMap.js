@@ -15,7 +15,7 @@ const SalesHeatmap = () => {
     longestStreak: 0
   });
 
-  // Mock data based on your API structure
+ 
   const mockSalesData = {
     '2024-01-15': 3,
     '2024-01-16': 1,
@@ -127,22 +127,18 @@ const SalesHeatmap = () => {
     const dates = Object.keys(data);
     const totalSales = Object.values(data).reduce((sum, count) => sum + count, 0);
     
-    // Find best day
     const bestDay = dates.reduce((best, date) => 
       data[date] > (data[best] || 0) ? date : best, dates[0]);
     
-    // Calculate streaks
     const sortedDates = dates.sort();
     let currentStreak = 0;
     let longestStreak = 0;
     let tempStreak = 0;
     
-    // Check if today has sales (for current streak)
     const today = new Date().toISOString().split('T')[0];
     const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
     
     if (data[today] || data[yesterday]) {
-      // Calculate current streak backwards from today
       let checkDate = new Date();
       while (true) {
         const dateStr = checkDate.toISOString().split('T')[0];
@@ -155,7 +151,6 @@ const SalesHeatmap = () => {
       }
     }
     
-    // Calculate longest streak
     for (let i = 0; i < sortedDates.length; i++) {
       const currentDate = new Date(sortedDates[i]);
       const prevDate = i > 0 ? new Date(sortedDates[i - 1]) : null;
@@ -183,7 +178,7 @@ const SalesHeatmap = () => {
       return dateObj.getMonth() === month && dateObj.getFullYear() === year;
     });
     
-    if (monthData.length === 0) return 1; // Avoid division by zero
+    if (monthData.length === 0) return 1; 
     return Math.max(...monthData.map(([date, count]) => count));
   };
 
@@ -191,12 +186,12 @@ const SalesHeatmap = () => {
     if (!count) return 0;
     const monthMax = getMonthlyMaxSales(month, year);
     const opacity = (count / monthMax);
-    return Math.max(0.2, opacity); // Minimum 0.2 opacity for visibility
+    return Math.max(0.2, opacity); 
   };
 
   const getIntensityColor = (count, month, year) => {
     if (!count) {
-      return 'rgba(55, 65, 81, 0.3)'; // No activity - gray
+      return 'rgba(55, 65, 81, 0.3)'; 
     }
     
     const opacity = getIntensityOpacity(count, month, year);
@@ -208,7 +203,6 @@ const SalesHeatmap = () => {
     const endDate = new Date(selectedYear, 11, 31);
     const weeks = [];
     
-    // Find the first Sunday of the year or before the year starts
     const firstDay = new Date(startDate);
     firstDay.setDate(firstDay.getDate() - firstDay.getDay());
     
