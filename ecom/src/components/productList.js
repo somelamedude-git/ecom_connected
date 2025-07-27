@@ -94,20 +94,102 @@ const SellerProductsDashboard = () => {
       times_returned: 7,
       category: { name: 'Accessories' },
       createdAt: '2024-01-20T11:30:00Z'
+    },
+    {
+      _id: '6',
+      name: 'wireless bluetooth headphones',
+      description: 'Premium noise-canceling wireless headphones with 30-hour battery life and crystal-clear audio quality.',
+      price: 199.99,
+      productImages: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=300&fit=crop',
+      views: 1247,
+      reviews: 4.5,
+      popularity: 87,
+      stock: new Map([['black', 15], ['white', 8], ['blue', 12]]),
+      times_ordered: 324,
+      added_to_cart: 89,
+      times_returned: 12,
+      category: { name: 'Electronics' },
+      createdAt: '2024-01-15T10:30:00Z'
+    },
+    {
+      _id: '7',
+      name: 'organic cotton t-shirt',
+      description: 'Sustainable and comfortable organic cotton t-shirt, perfect for everyday wear with a relaxed fit.',
+      price: 29.99,
+      productImages: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&h=300&fit=crop',
+      views: 892,
+      reviews: 4.2,
+      popularity: 64,
+      stock: new Map([['small', 20], ['medium', 25], ['large', 18], ['xl', 10]]),
+      times_ordered: 156,
+      added_to_cart: 45,
+      times_returned: 8,
+      category: { name: 'Clothing' },
+      createdAt: '2024-02-03T14:20:00Z'
+    },
+    {
+      _id: '8',
+      name: 'smart fitness watch',
+      description: 'Advanced fitness tracking watch with heart rate monitoring, GPS, and 7-day battery life.',
+      price: 299.99,
+      productImages: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=300&fit=crop',
+      views: 2103,
+      reviews: 4.7,
+      popularity: 93,
+      stock: new Map([['black', 12], ['silver', 7], ['rose-gold', 5]]),
+      times_ordered: 287,
+      added_to_cart: 76,
+      times_returned: 15,
+      category: { name: 'Electronics' },
+      createdAt: '2024-01-28T09:15:00Z'
+    },
+    {
+      _id: '9',
+      name: 'ceramic coffee mug set',
+      description: 'Handcrafted ceramic coffee mugs set of 4, perfect for your morning brew with elegant design.',
+      price: 49.99,
+      productImages: 'https://images.unsplash.com/photo-1514228742587-6b1558fcf93a?w=400&h=300&fit=crop',
+      views: 567,
+      reviews: 4.0,
+      popularity: 45,
+      stock: new Map([['white', 30], ['blue', 15], ['green', 20]]),
+      times_ordered: 89,
+      added_to_cart: 23,
+      times_returned: 3,
+      category: { name: 'Home & Garden' },
+      createdAt: '2024-02-10T16:45:00Z'
+    },
+    {
+      _id: '5',
+      name: 'leather laptop bag',
+      description: 'Professional leather laptop bag with multiple compartments, perfect for business and travel.',
+      price: 159.99,
+      productImages: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&h=300&fit=crop',
+      views: 1456,
+      reviews: 4.6,
+      popularity: 78,
+      stock: new Map([['brown', 8], ['black', 12], ['tan', 6]]),
+      times_ordered: 201,
+      added_to_cart: 54,
+      times_returned: 7,
+      category: { name: 'Accessories' },
+      createdAt: '2024-01-20T11:30:00Z'
     }
   ];
 
   useEffect(() => {
-    // Simulate API call
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        
-        const res = await fetch(`seller/productList?page=${currentPage}&limit=${limit}`);
-        
-        
-        // Simulate delay
+        const res = await axios(`http://localhost:3000/seller/productList?page=${currentPage}&limit=${limit}`,{
+            params:{
+                page:currentPage,
+                limit:limit
+            },
+            withCredentials: true
+        });
         await new Promise(resolve => setTimeout(resolve, 1000));
+        // let filteredProducts = [...res.data.productsOfUser];
         
         let filteredProducts = [...mockProducts];
 
@@ -144,7 +226,7 @@ const SellerProductsDashboard = () => {
             filteredProducts.sort((a, b) => b.views - a.views);
             break;
         }
-        
+        setTotalPages(res.data.numberOfPages);
         setTotalPages(Math.ceil(filteredProducts.length / limit));
         const startIndex = (currentPage - 1) * limit;
         const endIndex = startIndex + limit;
