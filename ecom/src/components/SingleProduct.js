@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {ArrowLeft, Heart, ShoppingBag, Star, Plus, Minus, Share, Shield, Truck, RotateCcw} from 'lucide-react';
+import {ArrowLeft, Heart, ShoppingBag, Star, Plus, Minus, Share, Shield, Truck, RotateCcw, Send, User} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from './Header';
 import '../styles/singleProduct.css'
 
 function ProductDescriptionPage() {
-  const { productId } = useParams();
+  const { product_id } = useParams();
   const navigate = useNavigate();
 
   const [product, setProduct] = useState(null);
@@ -19,53 +19,83 @@ function ProductDescriptionPage() {
   const [loading, setLoading] = useState(true);
   const [availableSizes, setAvailableSizes] = useState([]);
   const [stockInfo, setStockInfo] = useState({});
+  
+  
+  const [reviews, setReviews] = useState([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({
+    rating: 0,
+    description: ''
+  });
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [hoverRating, setHoverRating] = useState(0);
 
-//   const fetchProduct = async () => {
-//     try {
-//       setLoading(true);
-//       const response = await axios.get(`/api/products/${productId}`);
-//       const { product_info, product_sizes } = response.data;
+ 
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`/api/products/${product_id}`);
+      const { product_info, product_sizes } = response.data;
       
-//       setProduct(product_info);
-//       setAvailableSizes(product_sizes);
-//       setStockInfo(product_info.stock || {});
-//       setSelectedSize(product_sizes[0] || '');
-//     } catch (err) {
-//       setError('Failed to load product details. Please try again later.');
-//       console.error('Error fetching product:', err);
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+      setProduct(product_info);
+      setAvailableSizes(product_sizes);
+      setStockInfo(product_info.stock || {});
+      setSelectedSize(product_sizes[0] || '');
+    } catch (err) {
+      setError('Failed to load product details. Please try again later.');
+      console.error('Error fetching product:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-//   useEffect(() => {
-//     if (productId) {
-//       fetchProduct();
-//     }
-//   }, [productId]);
 
-  // Mock data fallback for development
-  useEffect(() => {
-    const mockData = {
-      _id: '507f1f77bcf86cd799439011',
-      name: 'lux leather jacket',
-      description: 'Crafted with genuine Italian leather, this jacket is the perfect fusion of style and durability.',
-      productImages: 'https://via.placeholder.com/600x800?text=Main+Image',
-      price: 249.99,
-      stock: { 'S': 5, 'M': 10, 'L': 3, 'XL': 0 },
-      views: 1247,
-      reviews: [],
-      times_ordered: 89,
-      popularity: 4.5
-    };
+  const fetchReviews = async () => {
+    try {
+      setReviewsLoading(true);
+      const response = await axios.get(`http://localhost:3000/product/getReviews/${product_id}`);
+      setReviews(response.data.reviews || []);
+    } catch (err) {
+      console.error('Error fetching reviews:', err);
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
 
-    const mockSizes = ['S', 'M', 'L', 'XL'];
-    setProduct(mockData);
-    setAvailableSizes(mockSizes);
-    setStockInfo(mockData.stock);
-    setSelectedSize(mockSizes[0]);
-    setLoading(false);
-  }, [productId]);
+
+  const submitReview = async () => {
+    try {
+     setSubmittingReview(true);
+const response = await axios.post(
+  `http://localhost:3000/product/${product_id}/addReview`,
+  {
+    rating: newReview.rating,
+    description: newReview.description,
+  },
+  {
+    withCredentials: true,
+  }
+);
+
+      setReviews(prev => [response.data.review, ...prev]);
+      setShowReviewForm(false);
+      setNewReview({ rating: 0, description: '' });
+      
+      if (response.data.updatedProduct) {
+        setProduct(prev => ({
+          ...prev,
+          popularity: response.data.updatedProduct.popularity
+        }));
+      }
+    } catch (err) {
+      console.error('Error submitting review:', err);
+      alert('Failed to submit review. Please try again.');
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
 
   const handleAddToCart = () => {
     if (!selectedSize) {
@@ -93,20 +123,49 @@ function ProductDescriptionPage() {
     // TODO: API call to add/remove from wishlist
   };
 
+const handleSubmitReview = () => {
+  if (newReview.rating === 0) {
+    alert('Please select a rating');
+    return;
+  }
+  if (newReview.description.trim().length < 10) {
+    alert('Please write a review with at least 10 characters');
+    return;
+  }
+
+  submitReview(); 
+};
+
+useEffect(()=>{
+    fetchProduct();
+    fetchReviews();
+}, [])
+
   const formatProductName = (name) => {
     return name.split(' ')
       .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ');
   };
 
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        size={16}
-        className={`star ${i < Math.floor(rating) ? 'filled' : ''}`}
-      />
-    ));
+  const renderStars = (rating, interactive = false, onStarClick = null, onStarHover = null) => {
+    return Array.from({ length: 5 }, (_, i) => {
+      const starRating = i + 1;
+      const isFilled = interactive 
+        ? (hoverRating >= starRating || (!hoverRating && newReview.rating >= starRating))
+        : i < Math.floor(rating);
+      
+      return (
+        <Star
+          key={i}
+          size={interactive ? 24 : 16}
+          className={`star ${isFilled ? 'filled' : ''} ${interactive ? 'interactive' : ''}`}
+          onClick={interactive ? () => onStarClick(starRating) : undefined}
+          onMouseEnter={interactive ? () => onStarHover(starRating) : undefined}
+          onMouseLeave={interactive ? () => onStarHover(0) : undefined}
+          style={interactive ? { cursor: 'pointer' } : {}}
+        />
+      );
+    });
   };
 
   const getStockStatus = (size) => {
@@ -121,6 +180,12 @@ function ProductDescriptionPage() {
     if (stock === 0) return 'Out of Stock';
     if (stock <= 5) return `Only ${stock} left`;
     return 'In Stock';
+  };
+
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return (sum / reviews.length).toFixed(1);
   };
 
   const renderTabContent = () => {
@@ -154,20 +219,99 @@ function ProductDescriptionPage() {
       case 'reviews':
         return (
           <div className="reviews-section">
-            {product.reviews && product.reviews.length > 0 ? (
+            <div className="reviews-header">
+              <div className="reviews-summary">
+                <h3>Customer Reviews ({reviews.length})</h3>
+                {reviews.length > 0 && (
+                  <div className="average-rating">
+                    <div className="stars">{renderStars(calculateAverageRating())}</div>
+                    <span className="rating-text">
+                      {calculateAverageRating()} out of 5 ({reviews.length} reviews)
+                    </span>
+                  </div>
+                )}
+              </div>
+              
+              <button 
+  className="add-review-btn"
+  onClick={() => setShowReviewForm(!showReviewForm)}
+>
+  {showReviewForm ? 'Cancel' : 'Write a Review'}
+</button>
+
+            </div>
+
+            {showReviewForm && (
+              <div className="review-form">
+                <h4>Write Your Review</h4>
+                
+                <div className="rating-input">
+                  <label>Rating:</label>
+                  <div className="star-rating">
+                    {renderStars(
+                      newReview.rating, 
+                      true, 
+                      (rating) => setNewReview(prev => ({ ...prev, rating })),
+                      setHoverRating
+                    )}
+                  </div>
+                </div>
+
+                <div className="review-text-input">
+                  <label htmlFor="review-description">Your Review:</label>
+                  <textarea
+                    id="review-description"
+                    value={newReview.description}
+                    onChange={(e) => setNewReview(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Share your experience with this product..."
+                    rows={4}
+                    maxLength={500}
+                  />
+                  <div className="character-count">
+                    {newReview.description.length}/500 characters
+                  </div>
+                </div>
+
+                <div className="review-form-actions">
+                  <button 
+                    className="submit-review-btn"
+                    onClick={handleSubmitReview}
+                    disabled={submittingReview || newReview.rating === 0}
+                  >
+                    <Send size={16} />
+                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {reviewsLoading ? (
+              <div className="reviews-loading">Loading reviews...</div>
+            ) : reviews.length > 0 ? (
               <div className="reviews-grid">
-                {product.reviews.map((review) => (
+                {reviews.map((review) => (
                   <div key={review._id} className="review-card">
                     <div className="review-header">
                       <div className="reviewer-info">
-                        <div className="reviewer-name">{review.reviewer || 'Anonymous'}</div>
-                        <div className="review-date">
-                          {new Date(review.createdAt).toLocaleDateString()}
+                        <div className="reviewer-avatar">
+                          <User size={20} />
+                        </div>
+                        <div>
+                          <div className="reviewer-name">
+                            {review.user_reviewd?.name || 'Anonymous'}
+                          </div>
+                          <div className="review-date">
+                            {new Date(review.createdAt).toLocaleDateString('en-US', {
+                              year: 'numeric',
+                              month: 'long',
+                              day: 'numeric'
+                            })}
+                          </div>
                         </div>
                       </div>
                       <div className="review-rating">{renderStars(review.rating)}</div>
                     </div>
-                    <p className="review-text">{review.comment}</p>
+                    <p className="review-text">{review.description}</p>
                   </div>
                 ))}
               </div>
@@ -242,13 +386,15 @@ function ProductDescriptionPage() {
                   )}
                 </div>
                 <div className="rating-section">
-                  {product.popularity && (
+                  {reviews.length > 0 ? (
                     <>
-                      <div className="stars">{renderStars(product.popularity)}</div>
+                      <div className="stars">{renderStars(calculateAverageRating())}</div>
                       <span className="rating-text">
-                        {product.popularity} ({product.reviews?.length || 0} reviews)
+                        {calculateAverageRating()} ({reviews.length} reviews)
                       </span>
                     </>
+                  ) : (
+                    <span className="no-ratings">No ratings yet</span>
                   )}
                 </div>
               </div>
@@ -336,12 +482,6 @@ function ProductDescriptionPage() {
                 <Share size={20} />
               </button>
             </div>
-
-            <div className="features">
-              <div><Truck size={16} /> Free Shipping</div>
-              <div><RotateCcw size={16} /> 30-Day Returns</div>
-              <div><Shield size={16} /> 2-Year Warranty</div>
-            </div>
           </div>
         </div>
 
@@ -354,12 +494,17 @@ function ProductDescriptionPage() {
                 className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
               >
                 {tab === 'info' ? 'Info' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                {tab === 'reviews' && reviews.length > 0 && (
+                  <span className="tab-count">({reviews.length})</span>
+                )}
               </button>
             ))}
           </div>
           <div className="tab-content">{renderTabContent()}</div>
         </div>
       </div>
+
+
     </div>
   );
 }
