@@ -24,7 +24,7 @@ const ProductAnalytics = () => {
 useEffect(() => {
   const fetchAnalytics = async () => {
     try {
-      const response = await axios.get(`http://localhost:3000/products/${product_id}/analytics`,
+      const response = await axios.get(`http://localhost:3000/seller/${product_id}/analytics`,
         {withCredentials: true}
       );
       setAnalytics(response.data.analytics);
@@ -38,27 +38,6 @@ useEffect(() => {
   };
 
   fetchAnalytics();
-
-  // Mock data for testing 
-  /*
-  setTimeout(() => {
-    setAnalytics({
-      views: 2847,
-      times_ordered: 156,
-      added_to_cart: 324,
-      average_age_customers: 28.5,
-      times_returned: 12,
-      order_ratio: 0.48,
-      return_ratio: 0.077,
-      cart_ratio: 0.114
-    });
-    setProduct({
-      name: 'Premium Wireless Headphones',
-      price: 299.99
-    });
-    setLoading(false);
-  }, 1000);
-  */
 }, [product_id]);
 
   const formatPercentage = (ratio) => {
