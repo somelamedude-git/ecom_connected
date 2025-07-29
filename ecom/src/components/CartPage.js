@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Minus, Plus, Trash2, ArrowLeft, Shield, ShoppingBag } from 'lucide-react';
 import Header from './Header';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import '../styles/CartPage.css';
 
 function CartPage({ navigate }) {
@@ -90,7 +91,8 @@ function CartPage({ navigate }) {
                   </div>
                 ) : (
                   cartitems.map(item => (
-                    <div key={item.product._id} className="cart-item">
+                    <Link key={item.product._id} className='cart-item-link'> {/* Add routes */}
+                    <div className="cart-item">
                       <div className="itemcontent">
                         <img src={item.product.image} alt={item.product.name} className="itemimg" />
                         <div className="iteminfo">
@@ -117,6 +119,8 @@ function CartPage({ navigate }) {
                         </div>
                       </div>
                     </div>
+                    </Link>
+                    
                   ))
                 )}
               </div>
