@@ -5,6 +5,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/clique_logo.png';
 import { useEffect, useState } from 'react';
 import '../styles/Header.css';
+import { Link }
 import axios from 'axios';
 
 
