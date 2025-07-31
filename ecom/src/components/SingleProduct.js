@@ -97,7 +97,7 @@ const response = await axios.post(
   };
 
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async (size) => {
     if (!selectedSize) {
       alert('Please select a size');
       return;
@@ -107,6 +107,16 @@ const response = await axios.post(
     if (availableStock < quantity) {
       alert(`Only ${availableStock} items available in size ${selectedSize}`);
       return;
+    }
+
+    try{
+        await axios.post(`http://localhost:3000/cart/addItem/${product_id}`, {
+        _size: selectedSize
+    },
+{withCredentials: true}
+)
+    } catch(error){
+        console.log(error);
     }
 
     console.log('Added to cart', { 
