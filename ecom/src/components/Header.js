@@ -4,9 +4,8 @@ import { Search, User, ShoppingBag, Menu, Heart } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/clique_logo.png';
 import { useEffect, useState } from 'react';
-import '../styles/Header.css';
-import { Link }
 import axios from 'axios';
+import '../styles/Header.css';
 
 
 
@@ -27,7 +26,7 @@ function Header({ menumove }) {
           withCredentials:true
         });
         setWishlistCount(res_CWL.data.wish_length);
-        setCartCount(res_CWL.data.wish_length);
+        setCartCount(res_CWL.data.cart_length);
         setLoggedin(res_login_status.data.isLoggedIn);
       }catch(error){
         // console.log("And I am become error, the destroyer of websites");
