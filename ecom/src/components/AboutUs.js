@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import PropTypes from 'prop-types';
 import { Heart, Star, Users, Sparkles, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from './Header';
@@ -192,10 +191,5 @@ function AboutPage() {
     </div>
   );
 }
-
-AboutPage.propTypes = {
-  loggedin: PropTypes.bool,
-  menumove: PropTypes.func,
-};
 
 export default AboutPage;
