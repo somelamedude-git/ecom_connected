@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
 import '../styles/FooterSection.css';
@@ -152,10 +151,5 @@ function FooterSection({menumove = SideMenu}) {
     </footer>
   );
 }
-
-FooterSection.propTypes= {
-  loggedin: PropTypes.bool,
-  menumove: PropTypes.func,
-};
 
 export default FooterSection;
