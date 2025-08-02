@@ -181,7 +181,7 @@ useEffect(() => {
             <div className="avatar"><User size={48} /></div>
             <div>
               <h1 className="profilename"><input type='text' defaultValue={user.name} className='editableBox' readOnly={!editingEnabled}
-              onChange={handleInputChange}
+              name='name' onChange={handleInputChange}
               /></h1>
               <p className="username">@{user.username}</p> {/*shouldn't be able to be edited*/}
               <p className="membersince">Member since {user.joinYear}</p>
@@ -224,7 +224,7 @@ useEffect(() => {
             </div>
             <div className="infoitem">
               <label>Preferred Style</label>
-              <p><input defaultValue={user.stylePref} className='editableBox' readOnly={!editingEnabled} name='style'
+              <p><input defaultValue={user.style} className='editableBox' readOnly={!editingEnabled} name='style'
               onChange={handleInputChange}
               /></p>
             </div>
