@@ -7,6 +7,7 @@ import '../styles/AboutPage.css';
 import clique_experience from '../assets/clique_experience.jpg';
 import clique_team from '../assets/clique_team.png';
 import bouqtique from '../assets/bouqtique.png';
+import FooterSection from './footer';
 
 function AboutPage() {
   const navigate = useNavigate();
@@ -187,7 +188,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <FooterSection loggedin={loggedin} menumove={menumove} />
+      <FooterSection/>
     </div>
   );
 }
