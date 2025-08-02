@@ -218,7 +218,7 @@ useEffect(() => {
             </div>
             <div className="infoitem">
               <label>Phone</label>
-              <p><input type='tel' defaultValue={user.phone} className='editableBox' readOnly={!editingEnabled}
+              <p><input type='tel' defaultValue={user.phone_number} className='editableBox' readOnly={!editingEnabled}
               onChange={(e) => setFormData({...formData, phone: e.target.value})}
               /></p>
             </div>
@@ -231,7 +231,7 @@ useEffect(() => {
             <div className="infoitem">
               <label>Age</label>
               <p>
-                <input type='Number' deafaultValue={user.age} className='editableBox' readOnly={!editingEnabled}
+                <input type='number' defaultValue={user.age} className='editableBox' readOnly={!editingEnabled}
                 onChange={handleInputChange}
                 />
               </p>

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
 
 const styles = {
   container: {
@@ -18,7 +17,7 @@ const styles = {
     padding: '48px',
     border: '1px solid #374151',
     width: '100%',
-    maxWidth: '400px'
+    maxWidth: '800px'
   },
   backButton: {
     display: 'flex',
@@ -88,10 +87,27 @@ const styles = {
     flexDirection: 'column',
     gap: '24px'
   },
-  formRow: {
+  formSections: {
     display: 'grid',
     gridTemplateColumns: '1fr 1fr',
-    gap: '16px'
+    gap: '48px',
+    '@media (max-width: 768px)': {
+      gridTemplateColumns: '1fr',
+      gap: '32px'
+    }
+  },
+  formSection: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '24px'
+  },
+  sectionTitle: {
+    fontSize: '18px',
+    fontWeight: '600',
+    color: '#d1d5db',
+    marginBottom: '8px',
+    paddingBottom: '8px',
+    borderBottom: '1px solid #374151'
   },
   formGroup: {
     display: 'flex',
@@ -123,7 +139,8 @@ const styles = {
     border: 'none',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    marginTop: '16px'
+    marginTop: '16px',
+    gridColumn: '1 / -1'
   },
   switchText: {
     textAlign: 'center',
@@ -152,10 +169,9 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
     confirmPassword: '',
     age:'',
     kind:'',
-    username:''
+    username:'',
+    phone_number: ''
   });
-
- 
 
   const handleInputChange = (e) => {
     setFormData({
@@ -179,9 +195,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
   };
 
   const handleGoogleSignup = () => {
-
     console.log('Google signup clicked');
-
     alert('Google signup daalo idhar'); //lmao ok
   };
 
@@ -254,149 +268,183 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
           <div style={styles.dividerLine}></div>
         </div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.formRow}>
-            <div style={styles.formGroup}>
-              <label htmlFor="firstName" style={styles.label}>
-                First Name
-              </label>
-              <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required
-                style={styles.input}
-                placeholder="First name"
-                onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
-                onBlur={(e) => e.target.style.borderColor = '#374151'}
-              />
+        <div style={styles.form}>
+          <div style={styles.formSections}>
+            {/* Left Side - Personal Information */}
+            <div style={styles.formSection}>
+              <h3 style={styles.sectionTitle}>Personal Information</h3>
+              
+              <div style={styles.formGroup}>
+                <label htmlFor="firstName" style={styles.label}>
+                  First Name
+                </label>
+                <input
+                  type="text"
+                  id="firstName"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="First name"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="lastName" style={styles.label}>
+                  Last Name
+                </label>
+                <input
+                  type="text"
+                  id="lastName"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="Last name"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="age" style={styles.label}>Age</label>
+                <input
+                  type="number"
+                  id="age"
+                  name="age"
+                  value={formData.age}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="Your age"
+                  min="13"
+                  max="120"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="phone_number" style={styles.label}>Phone Number</label>
+                <input
+                  type="tel"
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="+1 (555) 123-4567"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
             </div>
-            <div style={styles.formGroup}>
-              <label htmlFor="lastName" style={styles.label}>
-                Last Name
-              </label>
-              <input
-                type="text"
-                id="lastName"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                required
-                style={styles.input}
-                placeholder="Last name"
-                onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
-                onBlur={(e) => e.target.style.borderColor = '#374151'}
-              />
+
+            {/* Right Side - Account Details */}
+            <div style={styles.formSection}>
+              <h3 style={styles.sectionTitle}>Account Details</h3>
+              
+              <div style={styles.formGroup}>
+                <label htmlFor="username" style={styles.label}>Username</label>
+                <input
+                  type="text"
+                  id="username"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="Choose a username"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="accountType" style={styles.label}>Sign up as</label>
+                <select
+                  id="accountType"
+                  name="kind"
+                  value={formData.kind}
+                  onChange={handleInputChange}
+                  style={{ ...styles.input, backgroundColor: '#1f2937' }}
+                  required
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                >
+                  <option value="" disabled hidden>
+                    Select account type
+                  </option>
+                  <option value="Buyer">Buyer</option>
+                  <option value="Seller">Seller</option>
+                </select>
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="email" style={styles.label}>
+                  Email
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="your.email@example.com"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="password" style={styles.label}>
+                  Password
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="Create a password"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
+
+              <div style={styles.formGroup}>
+                <label htmlFor="confirmPassword" style={styles.label}>
+                  Confirm Password
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                  required
+                  style={styles.input}
+                  placeholder="Confirm your password"
+                  onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
+                  onBlur={(e) => e.target.style.borderColor = '#374151'}
+                />
+              </div>
             </div>
-          </div>
-          <div style={styles.formGroup}>
-            <label htmlFor="username" style={styles.label}>Username</label>
-            <input
-              type="text"
-              id="username"
-              name="username"
-              value={formData.username}
-              onChange={handleInputChange}
-              required
-              style={styles.input}
-              placeholder="Choose a username"
-            />
-          </div>
-
-            <div style={styles.formGroup}>
-            <label htmlFor="age" style={styles.label}>Age</label>
-            <input
-              type="number"
-              id="age"
-              name="age"
-              value={formData.age}
-              onChange={handleInputChange}
-              required
-              style={styles.input}
-              placeholder="Your age"
-              min="13"
-              max="120"
-            />
-          </div>
-
-            <div style={styles.formGroup}>
-            <label htmlFor="accountType" style={styles.label}>Sign up as</label>
-           <select
-  id="accountType"
-  name="kind"
-  value={formData.kind}
-  onChange={handleInputChange}
-  style={{ ...styles.input, backgroundColor: '#1f2937' }}
-  required
->
-  <option value="" disabled hidden>
-    Select account type
-  </option>
-  <option value="Buyer">Buyer</option>
-  <option value="Seller">Seller</option>
-</select>
-
-          </div>
-
-          <div style={styles.formGroup}>
-            <label htmlFor="email" style={styles.label}>
-              Email
-            </label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-              style={styles.input}
-              placeholder="your.email@example.com"
-              onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
-              onBlur={(e) => e.target.style.borderColor = '#374151'}
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label htmlFor="password" style={styles.label}>
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              required
-              style={styles.input}
-              placeholder="Create a password"
-              onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
-              onBlur={(e) => e.target.style.borderColor = '#374151'}
-            />
-          </div>
-
-          <div style={styles.formGroup}>
-            <label htmlFor="confirmPassword" style={styles.label}>
-              Confirm Password
-            </label>
-            <input
-              type="password"
-              id="confirmPassword"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleInputChange}
-              required
-              style={styles.input}
-              placeholder="Confirm your password"
-              onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
-              onBlur={(e) => e.target.style.borderColor = '#374151'}
-            />
           </div>
 
           <button
             type="submit"
             style={styles.submitButton}
+            onClick={handleSubmit}
             onMouseEnter={(e) => {
               e.target.style.opacity = '0.9';
               e.target.style.transform = 'scale(1.05)';
@@ -408,7 +456,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
           >
             Create Account
           </button>
-        </form>
+        </div>
 
         <div style={styles.switchText}>
           Already have an account?{' '}

@@ -4,39 +4,12 @@ import Header from '../components/Header';
 import '../styles/LandingPage.css';
 import axios from 'axios';
 
-function LandingPage({ onToggleMenu, }) {
+function LandingPage() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const [wishlistCount, setWishlistCount] = useState(0);
-
-  const fetchCWL = axios.get('http://localhost:3000/user/getCWL', {
-    withCredentials: true
-  });
-
-  const fetchLoginStatus = axios.get('http://localhost:3000/user/verifyLogin', {
-    withCredentials: true
-  });
-
-  useEffect(() => { 
-    
-        Promise.all([fetchCWL, fetchLoginStatus])
-        .then(([cwlRes, loginRes])=>{
-            setWishlistCount(cwlRes.data.wish_length);
-            setCartCount(cwlRes.data.cart_length);
-            setIsLoggedIn(loginRes.data.isLoggedIn);
-        })
-        .catch(err=>console.log(err));
-  }, []);
 
   return (
     <div className="landing-container">
-      <Header
-        cartCount={cartCount}
-        wishlistCount={wishlistCount}
-        loggedin={isLoggedIn}
-        menumove={onToggleMenu}
-      />
+      <Header/>
 
       <main className="landinghero">
         <div className="herokaoverlay" />
@@ -48,7 +21,7 @@ function LandingPage({ onToggleMenu, }) {
 
           <h1 className="heroheadline">
             <span className="headlinestatic">People are going to Stare -</span>
-            <span className="headline-dynamic typing-animation">Make it Worth the While</span>
+            <span className="headlinedynamic typing-animation">Make it Worth the While</span>
           </h1>
 
           <p className="herosubtit">

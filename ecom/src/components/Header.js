@@ -5,11 +5,12 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/clique_logo.png';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import SideMenu from './SideMenu';
 import '../styles/Header.css';
 
 
 
-function Header({ menumove }) {
+function Header({ menumove=SideMenu }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [cartCount, setCartCount] = useState(0);
@@ -28,9 +29,10 @@ function Header({ menumove }) {
         setWishlistCount(res_CWL.data.wish_length);
         setCartCount(res_CWL.data.cart_length);
         setLoggedin(res_login_status.data.isLoggedIn);
+        if(loggedin) console.log('logged in');
+        if(!loggedin) console.log('not logged in')
       }catch(error){
-        // console.log("And I am become error, the destroyer of websites");
-        // console.log(error);
+        console.log(error);
         setLoggedin(false);
         setCartCount(0);
         setWishlistCount(0);
@@ -123,11 +125,6 @@ function Header({ menumove }) {
   );
 }
 
-Header.propTypes = {
-  cartCount: PropTypes.number,
-  wishlistCount: PropTypes.number,
-  loggedin: PropTypes.bool,
-  menumove: PropTypes.func,
-};
+
 
 export default Header;

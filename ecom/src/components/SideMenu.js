@@ -18,8 +18,8 @@ function SideMenu({isopen, onclose}) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const profileRes = await axios.get('/user/profile');
-        const countsRes = await axios.get('/user/counts');
+        const profileRes = await axios.get('http://loalhost:3000/user/profile');
+        const countsRes = await axios.get('http://localhost:3000/user/getCWL');
         const user = profileRes.data.user || {};
         setprofile({
           name:user.name || 'Guest',
