@@ -4,18 +4,20 @@ import Header from './Header';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../styles/CartPage.css';
+import { useNavigate } from 'react-router-dom';
 
-function CartPage({ navigate }) {
+function CartPage() {
   const [cartitems, setcartitems] = useState([]);
   const [loading, setloading] = useState(true);
 
+  const navigate = useNavigate();;
   useEffect(() => {
     const loadData = async () => {
       try {
         const response = await axios.get('http://localhost:3000/cart/getItems', {
           withCredentials: true
         });
-        setcartitems(response.data.cart_items);
+        setcartitems(response.data.cart);
       } catch (err) {
         console.log(err);
       } finally {
@@ -66,11 +68,16 @@ function CartPage({ navigate }) {
     }
   };
 
-  const subtotal = cartitems.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+const subtotal = !loading
+  ? (cartitems || []).reduce(
+      (sum, i) => sum + i.product.price * i.quantity,
+      0
+    )
+  : 0;
 
   return (
     <div className="cart-container">
-      <Header currentPage="cart" navigate={navigate} cartCount={cartitems.length} />
+      <Header/>
       <div className="cart-main">
         {loading ? (
           <div className="loading">Loading...</div>
@@ -91,7 +98,7 @@ function CartPage({ navigate }) {
                   </div>
                 ) : (
                   cartitems.map(item => (
-                    <Link key={item.product._id} className='cart-item-link'> {/* Add routes */}
+                    <Link key={item.product._id} className='cart-item-link'>
                     <div className="cart-item">
                       <div className="itemcontent">
                         <img src={item.product.image} alt={item.product.name} className="itemimg" />
