@@ -21,7 +21,7 @@ function ProfilePage({ loggedin, onToggleMenu, cartcount, wishlistcount }) {
     email : '',
     age: '',
     style:'',
-    phone: ''
+    phone_number: ''
   });
 
  const handleSave = async () => {
@@ -212,26 +212,26 @@ useEffect(() => {
           <div className="infogrid">
             <div className="infoitem">
               <label>Email</label>
-              <p><input type='email' className='editableBox' defaultValue={user.email} readOnly={!editingEnabled}
+              <p><input type='email' className='editableBox' defaultValue={user.email} readOnly={!editingEnabled} name='email'
               onChange={handleInputChange} // validation logic to be added
               /></p>
             </div>
             <div className="infoitem">
               <label>Phone</label>
-              <p><input type='tel' defaultValue={user.phone_number} className='editableBox' readOnly={!editingEnabled}
-              onChange={(e) => setFormData({...formData, phone: e.target.value})}
+              <p><input type='tel' defaultValue={user.phone_number} className='editableBox' readOnly={!editingEnabled} name='phone_number'
+              onChange={(e) => setFormData({...formData, phone_number: e.target.value})}
               /></p>
             </div>
             <div className="infoitem">
               <label>Preferred Style</label>
-              <p><input defaultValue={user.stylePref} className='editableBox' readOnly={!editingEnabled}
+              <p><input defaultValue={user.stylePref} className='editableBox' readOnly={!editingEnabled} name='style'
               onChange={handleInputChange}
               /></p>
             </div>
             <div className="infoitem">
               <label>Age</label>
               <p>
-                <input type='number' defaultValue={user.age} className='editableBox' readOnly={!editingEnabled}
+                <input type='number' defaultValue={user.age} className='editableBox' readOnly={!editingEnabled} name='age'
                 onChange={handleInputChange}
                 />
               </p>
