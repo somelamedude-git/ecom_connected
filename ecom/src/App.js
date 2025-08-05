@@ -11,6 +11,7 @@ import ProfilePage from './components/ProfilePage';
 import AboutPage from './components/AboutUs';
 import Layout from './components/Layout';
 import WishlistPage from './components/WishlistPage';
+import SellerProductsDashboard from './components/productList';
 
 
 function App() {
@@ -49,6 +50,15 @@ function App() {
           </Layout>
         }
         ></Route>
+        <Route path='/seller/products'
+        element={
+          <Layout>
+            <SellerProductsDashboard/>
+          </Layout>
+        }
+        >
+
+        </Route>
       </Routes>
     
   );

@@ -42,7 +42,7 @@ const SellerProductsDashboard = () => {
   }, [currentPage, limit, sortBy, filterBy, searchTerm]);
 
   const getStockTotal = (stockMap) => {
-    if (!stockMap || !(stockMap instanceof object)) return 0;
+    if (!stockMap || !(stockMap instanceof Object)) return 0;
     return Array.from(stockMap.values()).reduce((total, count) => total + count, 0);
   };
 
