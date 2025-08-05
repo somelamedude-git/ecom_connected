@@ -45,16 +45,10 @@ function SideMenu({isopen, onclose}) {
   const handleLogout = async () => {
     try {
       await axios.post('http://localhost:3000/user/logout');
-      localStorage.removeItem('token');
-      sessionStorage.clear();
-      navigate('/login');
+      navigate('/');
       onclose();
     } catch (error) {
       console.error('Error logging out:', error);
-      // Even if API call fails, clear local data and redirect
-      localStorage.removeItem('token');
-      sessionStorage.clear();
-      navigate('/');
       onclose();
     }
   };
