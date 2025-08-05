@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Filter, Grid, List, Star, Heart, ShoppingCart, Eye, TrendingUp, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const ProductsPage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -209,7 +211,7 @@ const ProductsPage = () => {
     <div className="products-container">
       <div className="products-main">
         {/* Header */}
-        <button className="backb">
+        <button className="backb" onClick={()=>navigate('/')}>
           <ArrowLeft size={20} />
           Back to Home
         </button>
