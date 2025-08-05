@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {X, Venus, Heart, ShoppingBag, Mars, User,Footprints, Watch, Palette} from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
+import '../styles/SideMenu.css';
 
 function SideMenu({isopen, onclose}) {
   const [profile, setprofile] = useState({name:'', status:''});
