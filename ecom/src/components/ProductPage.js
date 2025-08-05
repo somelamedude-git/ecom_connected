@@ -16,19 +16,21 @@ const ProductsPage = () => {
   const [limit, setLimit] = useState(10);
   const [wishlist, setWishlist] = useState(new Set());
 
-  const fetchProducts = async (page = 0) => {
+  const fetchProducts = async (page = 0, currentSortBy = sortBy) => {
     setLoading(true);
     try {
       const response = await axios.get('http://localhost:3000/products/fetchProducts', {
         params: {
           page: page,
-          limit: limit
+          limit: limit,
+          sortBy: currentSortBy
         }
       });
 
       const data = response.data;
 
-      setProducts(data.products);
+      // Use sortedProducts from API response instead of products
+      setProducts(data.sortedProducts || []);
       setTotalCount(data.totalCount);
       setTotalPages(data.num_pages);
       setCurrentPage(page);
@@ -41,8 +43,8 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    fetchProducts(currentPage);
-  }, [currentPage, limit]);
+    fetchProducts(currentPage, sortBy);
+  }, [currentPage, limit, sortBy]);
 
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -96,29 +98,18 @@ const ProductsPage = () => {
     setCurrentPage(0);
   };
 
-  // Client-side sorting
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case 'popularity':
-        return b.popularity - a.popularity;
-      case 'price-low':
-        return a.price - b.price;
-      case 'price-high':
-        return b.price - a.price;
-      case 'rating':
-        return calculateAverageRating(b.reviews) - calculateAverageRating(a.reviews);
-      case 'views':
-        return b.views - a.views;
-      default:
-        return 0;
-    }
-  });
+  const handleSortChange = (newSortBy) => {
+    setSortBy(newSortBy);
+    setCurrentPage(0); // Reset to first page when sorting changes
+  };
 
+  // For search results, we need client-side pagination since API doesn't handle search
+  const searchTotalPages = Math.ceil(filteredProducts.length / limit);
+  
   // Get current page results for display
-  const startIndex = currentPage * limit;
-  const endIndex = startIndex + limit;
-  const currentProducts = sortedProducts.slice(startIndex, endIndex);
-  const searchTotalPages = Math.ceil(sortedProducts.length / limit);
+  const currentProducts = searchQuery ? 
+    filteredProducts.slice(currentPage * limit, (currentPage + 1) * limit) : 
+    products; // API already handles pagination when not searching
 
   const ProductCard = ({ product }) => {
     const avgRating = calculateAverageRating(product.reviews);
@@ -262,7 +253,7 @@ const ProductsPage = () => {
 
             <div className="sort-dropdown">
               <SlidersHorizontal size={18} />
-              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+              <select value={sortBy} onChange={(e) => handleSortChange(e.target.value)}>
                 <option value="popularity">Most Popular</option>
                 <option value="price-low">Price: Low to High</option>
                 <option value="price-high">Price: High to Low</option>
@@ -300,7 +291,7 @@ const ProductsPage = () => {
         {/* Results Info */}
         <div className="results-info">
           <span>
-            Showing {currentProducts.length} of {searchQuery ? sortedProducts.length : totalCount} products
+            Showing {currentProducts.length} of {searchQuery ? filteredProducts.length : totalCount} products
             {searchQuery && ` for "${searchQuery}"`}
           </span>
           <span className="page-info">
@@ -311,11 +302,11 @@ const ProductsPage = () => {
         {/* Search Results Summary */}
         {searchQuery && (
           <div className="search-summary">
-            {sortedProducts.length === 0 ? (
+            {filteredProducts.length === 0 ? (
               <span className="no-results">No products found matching your search.</span>
             ) : (
               <span className="search-results">
-                Found {sortedProducts.length} product{sortedProducts.length !== 1 ? 's' : ''} matching "{searchQuery}"
+                Found {filteredProducts.length} product{filteredProducts.length !== 1 ? 's' : ''} matching "{searchQuery}"
               </span>
             )}
           </div>

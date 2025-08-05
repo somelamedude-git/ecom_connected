@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowLeft, Heart, ShoppingBag, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import Header from './Header';
 import '../styles/WishlistPage.css';
 import axios from 'axios';
 
@@ -25,107 +24,6 @@ function WishlistPage() {
     }
     load();
   }, []);
-
-//   useEffect(() => {
-//   async function load() {
-//     try {
-//       const mockData = [
-//   {
-//     inStock: true,
-//     item: {
-//       size: "M",
-//       product: {
-//         _id: "1",
-//         name: "Midnight Hoodie",
-//         color: "Black",
-//         price: 59.99,
-//         image: "https://via.placeholder.com/100?text=Hoodie"
-//       }
-//     }
-//   },
-//   {
-//     inStock: false,
-//     item: {
-//       size: "L",
-//       product: {
-//         _id: "2", 
-//         name: "Midnight Hoodie",
-//         color: "Black",
-//         price: 59.99,
-//         image: "https://via.placeholder.com/100?text=Hoodie"
-//       }
-//     }
-//   },
-//   {
-//     inStock: true,
-//     item: {
-//       size: "S",
-//       product: {
-//         _id: "3",
-//         name: "Skyline T-shirt",
-//         color: "Blue",
-//         price: 24.50,
-//         image: "https://via.placeholder.com/100?text=T-shirt"
-//       }
-//     }
-//   },
-//   {
-//     inStock: true,
-//     item: {
-//       size: "M",
-//       product: {
-//         _id: "4", // same product ID as above
-//         name: "Skyline T-shirt",
-//         color: "Blue",
-//         price: 24.50,
-//         image: "https://via.placeholder.com/100?text=T-shirt"
-//       }
-//     }
-//   },
-//   {
-//     inStock: true,
-//     item: {
-//       size: "XS",
-//       product: {
-//         _id: "5",
-//         name: "Cloud Joggers",
-//         color: "Gray",
-//         price: 39.99,
-//         image: "https://via.placeholder.com/100?text=Joggers"
-//       }
-//     }
-//   },
-
-//   {
-//     inStock: true,
-//     item: {
-//       size: "XXXXXL",
-//       product: {
-//         _id: "6",
-//         name: "Midnight Hoodie",
-//         color: "Black",
-//         price: 59.99,
-//         image: "https://via.placeholder.com/100?text=Hoodie"
-//       }
-//     }
-//   },
-
-  
-// ];
-
-
-//       // Simulate async
-//       await new Promise(resolve => setTimeout(resolve, 500));
-//       setWishlist(mockData);
-//     } catch (e) {
-//       console.error(e);
-//     } finally {
-//       setLoading(false);
-//     }
-//   }
-
-//   load();
-// }, []);
 
 
   const remove = async (product_id, item_size) => {
@@ -166,10 +64,6 @@ function WishlistPage() {
 
   return (
     <div className="cart-container">
-      <Header
-        navigate={navigate}
-        currentPage="wishlist"
-      /> {/* Fix this */}
 
       <div className="cart-main">
         <button className="backb" onClick={() => navigate('/')}>

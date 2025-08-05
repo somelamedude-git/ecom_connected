@@ -10,6 +10,7 @@ import ProductsPage from './components/ProductPage';
 import ProfilePage from './components/ProfilePage';
 import AboutPage from './components/AboutUs';
 import Layout from './components/Layout';
+import WishlistPage from './components/WishlistPage';
 
 
 function App() {
@@ -35,6 +36,14 @@ function App() {
           </Layout>
         }></Route>
         <Route path='/products' element={<ProductsPage/>}></Route>
+        <Route
+        path='/wishlist'
+        element={
+          <Layout>
+            <WishlistPage/>
+          </Layout>
+        }
+        ></Route>
       </Routes>
     
   );
