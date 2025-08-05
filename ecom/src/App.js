@@ -35,7 +35,12 @@ function App() {
             <AboutPage/>
           </Layout>
         }></Route>
-        <Route path='/products' element={<ProductsPage/>}></Route>
+        <Route path='/products' element=
+        {
+          <Layout>
+            <ProfilePage/>
+          </Layout>
+        }></Route>
         <Route
         path='/wishlist'
         element={
