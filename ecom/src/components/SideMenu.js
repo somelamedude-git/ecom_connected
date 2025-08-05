@@ -1,14 +1,25 @@
 import React, {useEffect, useState} from 'react';
 import axios from 'axios';
-import {X, Venus, Heart, ShoppingBag, Mars, User, Footprints, Watch, Palette, LogOut} from 'lucide-react';
+import {
+  X, Venus, Heart, ShoppingBag, Mars, User, Footprints, Watch, Palette, LogOut,
+  Package, BarChart3, Settings, Store, Plus, TrendingUp, DollarSign
+} from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
 import '../styles/SideMenu.css';
 
 function SideMenu({isopen, onclose}) {
   const [profile, setprofile] = useState({name:'', status:''});
   const [counts, setcounts] = useState({wish_length:0, cart_length:0});
+  const [userType, setUserType] = useState('Buyer');
+  const [sellerStats, setSellerStats] = useState({
+    totalProducts: 0,
+    totalOrders: 0,
+    pendingOrders: 0
+  });
   const navigate = useNavigate();
-  const categories = [
+  
+  // Buyer categories
+  const buyerCategories = [
     {name:"Women's", icon:Venus},
     {name:"Men's", icon:Mars},
     {name:"Footwear", icon:Footprints},
@@ -16,42 +27,223 @@ function SideMenu({isopen, onclose}) {
     {name:"Makeup", icon:Palette}
   ];
 
+  // Seller menu items
+  const sellerMenuItems = [
+    {name: "Dashboard", path: "/seller", icon: BarChart3},
+    {name: "My Products", path: "/seller/products", icon: Package},
+    {name: "Add Product", path: "/seller/add-product", icon: Plus},
+    {name: "Orders", path: "/seller/orders", icon: ShoppingBag},
+    {name: "Analytics", path: "/seller/analytics", icon: TrendingUp},
+    {name: "My Store", path: "/seller/store", icon: Store},
+    {name: "Settings", path: "/seller/settings", icon: Settings}
+  ];
+
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const profileRes = await axios.get('http://localhost:3000/user/profile');
-        const countsRes = await axios.get('http://localhost:3000/user/getCWL');
-        const user = profileRes.data.user || {};
-        setprofile({
-          name:user.name || 'Guest',
-          status:'Member',
-       });
-        setcounts({
-          wish_length:countsRes.data.wish_length,
-          cart_length:countsRes.data.cart_length,
-       });
-     } catch (error) {
+        // Check login status and user type
+        const loginRes = await axios.get('http://localhost:3000/user/verifyLogin', {
+          withCredentials: true
+        });
+        
+        if (loginRes.data.isLoggedIn) {
+          setUserType(loginRes.data.userType || 'Buyer');
+          
+          // Fetch profile data
+          const profileRes = await axios.get('http://localhost:3000/user/profile', {
+            withCredentials: true
+          });
+          const user = profileRes.data.user || {};
+          setprofile({
+            name: user.name || 'Guest',
+            status: loginRes.data.userType === 'Seller' ? 'Seller' : 'Member',
+          });
+
+          // Fetch user-specific data
+          if (loginRes.data.userType === 'Buyer') {
+            const countsRes = await axios.get('http://localhost:3000/user/getCWL', {
+              withCredentials: true
+            });
+            setcounts({
+              wish_length: countsRes.data.wish_length,
+              cart_length: countsRes.data.cart_length,
+            });
+          } else if (loginRes.data.userType === 'Seller') {
+            const statsRes = await axios.get('http://localhost:3000/seller/stats', {
+              withCredentials: true
+            });
+            setSellerStats(statsRes.data);
+          }
+        }
+      } catch (error) {
         console.error('Error loading side menu data:', error);
-     }
-   };
-    fetchData();
- }, []);
+        setprofile({name: 'Guest', status: 'Member'});
+      }
+    };
+    
+    if (isopen) {
+      fetchData();
+    }
+  }, [isopen]);
 
   const handleNavigate = (path) => {
     navigate(path);
     onclose();
- };
+  };
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:3000/user/logout');
+      await axios.post('http://localhost:3000/user/logout', {}, {
+        withCredentials: true
+      });
       navigate('/');
       onclose();
     } catch (error) {
       console.error('Error logging out:', error);
+      navigate('/');
       onclose();
     }
   };
+
+  // Buyer Side Menu
+  const BuyerSideMenu = () => (
+    <>
+      <div className="profilesec">
+        <div className="profileinfo">
+          <div className="avatar">
+            <User size={32} color="#000000" />
+          </div>
+          <div className="profiledetails">
+            <h3 className="profilename">{profile.name}</h3>
+            <p className="profilestatus">{profile.status}</p>
+          </div>
+        </div>
+        <button className="viewprofileb" onClick={() => handleNavigate('/profile')}>
+          View profile
+        </button>
+      </div>
+
+      <div className="sec">
+        <h4 className="sectitle">Quick Actions</h4>
+        <div className="menulist">
+          <button className="menuitem" onClick={() => handleNavigate('/wishlist')}>
+            <Heart size={20} />
+            <span>Wishlist ({counts.wish_length})</span>
+          </button>
+          <button className="menuitem" onClick={() => handleNavigate('/cart')}>
+            <ShoppingBag size={20} />
+            <span>Cart ({counts.cart_length})</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="sec">
+        <h4 className="sectitle">Categories</h4>
+        <div className="menulist">
+          {buyerCategories.map((category, i) => (
+            <button
+              key={i}
+              className="menuitem"
+              onClick={() => handleNavigate(`/products?category=${category.name}`)}
+            >
+              <category.icon size={20} />
+              <span>{category.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
+
+  // Seller Side Menu
+  const SellerSideMenu = () => (
+    <>
+      <div className="profilesec">
+        <div className="profileinfo">
+          <div className="avatar" style={{ backgroundColor: '#fbbf24' }}>
+            <User size={32} color="#000000" />
+          </div>
+          <div className="profiledetails">
+            <h3 className="profilename">{profile.name}</h3>
+            <p className="profilestatus" style={{ color: '#fbbf24' }}>{profile.status}</p>
+          </div>
+        </div>
+        <button className="viewprofileb" onClick={() => handleNavigate('/seller/profile')}>
+          View profile
+        </button>
+      </div>
+
+      <div className="sec">
+        <h4 className="sectitle">Quick Stats</h4>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: '1fr 1fr', 
+          gap: '12px',
+          marginBottom: '20px'
+        }}>
+          <div style={{
+            padding: '12px',
+            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+            borderRadius: '8px',
+            border: '1px solid rgba(251, 191, 36, 0.2)',
+            textAlign: 'center'
+          }}>
+            <div style={{ color: '#fbbf24', fontSize: '20px', fontWeight: '700' }}>
+              {sellerStats.totalProducts || 0}
+            </div>
+            <div style={{ color: '#9ca3af', fontSize: '12px' }}>Products</div>
+          </div>
+          <div style={{
+            padding: '12px',
+            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+            borderRadius: '8px',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            textAlign: 'center'
+          }}>
+            <div style={{ color: '#ef4444', fontSize: '20px', fontWeight: '700' }}>
+              {sellerStats.pendingOrders || 0}
+            </div>
+            <div style={{ color: '#9ca3af', fontSize: '12px' }}>Pending</div>
+          </div>
+        </div>
+      </div>
+
+      <div className="sec">
+        <h4 className="sectitle">Seller Tools</h4>
+        <div className="menulist">
+          {sellerMenuItems.map((item, i) => (
+            <button
+              key={i}
+              className="menuitem"
+              onClick={() => handleNavigate(item.path)}
+              style={item.name === "Add Product" ? {
+                backgroundColor: 'rgba(251, 191, 36, 0.1)',
+                border: '1px solid rgba(251, 191, 36, 0.3)',
+                color: '#fbbf24'
+              } : {}}
+            >
+              <item.icon size={20} />
+              <span>{item.name}</span>
+              {item.name === "Orders" && sellerStats.pendingOrders > 0 && (
+                <span style={{
+                  marginLeft: 'auto',
+                  backgroundColor: '#ef4444',
+                  color: '#ffffff',
+                  fontSize: '12px',
+                  padding: '2px 6px',
+                  borderRadius: '10px',
+                  minWidth: '18px',
+                  textAlign: 'center'
+                }}>
+                  {sellerStats.pendingOrders}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
+  );
 
   return (
     <>
@@ -61,56 +253,15 @@ function SideMenu({isopen, onclose}) {
         <div className="menucontent">
 
           <div className="menuheader">
-            <h2 className="menutitle">Menu</h2>
+            <h2 className="menutitle">
+              {userType === 'Seller' ? 'Seller Menu' : 'Menu'}
+            </h2>
             <button className="closeb" onClick={onclose}>
               <X size={24} />
             </button>
           </div>
 
-          <div className="profilesec">
-            <div className="profileinfo">
-              <div className="avatar">
-                <User size={32} color="#000000" />
-              </div>
-              <div className="profiledetails">
-                <h3 className="profilename">{profile.name}</h3>
-                <p className="profilestatus">{profile.status}</p>
-              </div>
-            </div>
-            <button className="viewprofileb" onClick={() => handleNavigate('/profile')}>
-              View profile
-            </button>
-          </div>
-
-          <div className="sec">
-            <h4 className="sectitle">Quick Actions</h4>
-            <div className="menulist">
-              <button className="menuitem" onClick={() => handleNavigate('/wishlist')}>
-                <Heart size={20} />
-                <span>Wishlist ({counts.wish_length})</span>
-              </button>
-              <button className="menuitem" onClick={() => handleNavigate('/cart')}>
-                <ShoppingBag size={20} />
-                <span>Cart ({counts.cart_length})</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="sec">
-            <h4 className="sectitle">Categories</h4>
-            <div className="menulist">
-              {categories.map((category, i) => (
-                <button
-                  key={i}
-                  className="menuitem"
-                  onClick={() => handleNavigate(`/products?category=${category.name}`)}
-                >
-                  <category.icon size={20} />
-                  <span>{category.name}</span>
-                </button>
-              ))}
-            </div>
-          </div>
+          {userType === 'Seller' ? <SellerSideMenu /> : <BuyerSideMenu />}
 
           {/* Logout Button */}
           <div style={{
