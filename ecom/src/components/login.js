@@ -105,7 +105,7 @@ const styles = {
 };
 
 
-function LoginPage({ tolanding, onLogin, tosignup, onGoogleLogin }) {
+function LoginPage({ tolanding, onLogin, tosignup, onGoogleLogin , sellerKind}) {
   const [formData, setFormData] = useState({
     email: '',
     password: ''

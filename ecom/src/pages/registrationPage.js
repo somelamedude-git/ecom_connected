@@ -42,7 +42,7 @@ const onSignUp = async(formData, setAlertText)=>{
 
   return (
     <div className="App">
-    <SignupPage onSignUp={(formData)=>onSignUp(formData, setAlertText)} alertText={alertText}/>
+    <SignupPage onSignUp={(formData)=>onSignUp(formData, setAlertText)} alertText={alertText} tologin={()=>navigate('/login')}/>
     </div>
   );
 }
