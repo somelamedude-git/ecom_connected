@@ -16,11 +16,19 @@ function App() {
   return (
     
       <Routes>
-        <Route path='/' element={<LandingPage/>}></Route>
+        <Route path='/' element={
+          <Layout>
+            <LandingPage/>
+          </Layout>
+        }></Route>
         <Route path = '/login' element={<Login/>}></Route>
         <Route path='/signup' element={<RegistrationPage/>}></Route>
         <Route path='profile' element={<Layout><ProfilePage/></Layout>}></Route>
-        <Route path='/cart' element={<CartPage/>}></Route>
+        <Route path='/cart' element={
+          <Layout>
+            <CartPage/>
+          </Layout>
+        }></Route>
         <Route path='/about' element={
           <Layout>
             <AboutPage/>
