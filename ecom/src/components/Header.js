@@ -8,7 +8,6 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import logo from '../assets/clique_logo.png';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import SideMenu from './SideMenu';
 import '../styles/Header.css';
 
 function Header({ menumove }) {
@@ -33,9 +32,9 @@ function Header({ menumove }) {
         
         if (res_login_status.data.isLoggedIn) {
           setLoggedin(true);
-          setUserType(res_login_status.data.userType || 'buyer'); // Assume API returns userType
+          setUserType(res_login_status.data.userType || 'Buyer'); 
           
-          if (res_login_status.data.userType === 'buyer') {
+          if (res_login_status.data.userType === 'Buyer') {
             const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
               withCredentials: true
             });
@@ -80,7 +79,6 @@ function Header({ menumove }) {
   const navbclasss = (page) => `navLink${activated(page) ? ' act' : ''}`;
   const iconclass = (page) => `iconb${activated(page) ? ' aicon' : ''}`;
 
-  // Buyer Header Component
   const BuyerHeader = () => (
     <header className="header">
       <div className="headercontent">
@@ -221,7 +219,6 @@ function Header({ menumove }) {
             Add Product
           </button>
 
-          {/* Products Count */}
           <button onClick={() => safenav('/seller/products')} className={iconclass('products')}>
             <Package size={20} />
             <span className="cartthingy">{sellerStats.totalProducts}</span>
@@ -262,7 +259,6 @@ function Header({ menumove }) {
     </header>
   );
 
-  // Return appropriate header based on user type
   if (!loggedin) {
     return <BuyerHeader />; 
   }
