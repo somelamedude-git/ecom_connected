@@ -6,6 +6,7 @@ import RegistrationPage from './pages/registrationPage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import CartPage from './components/CartPage';
 import { ToastContainer } from 'react-toastify';
+import ProductsPage from './components/ProductPage';
 import ProfilePage from './components/ProfilePage';
 import AboutPage from './components/AboutUs';
 
@@ -20,6 +21,7 @@ function App() {
         <Route path='/profile' element={<ProfilePage/>}></Route>
         <Route path='/cart' element={<CartPage/>}></Route>
         <Route path='/about' element={<AboutPage/>}></Route>
+        <Route path='/products' element={<ProductsPage/>}></Route>
       </Routes>
     
   );

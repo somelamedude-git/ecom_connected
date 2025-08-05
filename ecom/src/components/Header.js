@@ -10,7 +10,7 @@ import '../styles/Header.css';
 
 
 
-function Header({ menumove=SideMenu }) {
+function Header({ menumove }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [cartCount, setCartCount] = useState(0);

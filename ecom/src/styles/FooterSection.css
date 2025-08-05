@@ -4,13 +4,13 @@
   padding: 48px 0 24px;
 }
 
-.topsec {
+.topSection {
   background-color: #1f2937;
   padding: 24px 0;
   text-align: center;
 }
 
-.topcontent {
+.topContent {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 16px;
@@ -21,40 +21,46 @@
   gap: 24px;
 }
 
-.downloadsec {
+.downloadSection {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
-.downloadtitle {
+.downloadTitle {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 16px;
 }
 
-.appbs {
+.appButtons {
   display: flex;
   gap: 12px;
 }
 
-.appb {
+.appButton {
   height: 48px;
   border-radius: 8px;
   overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease;
 }
 
-.helpsec {
+.appButton:hover {
+  transform: scale(1.05);
+}
+
+.helpSection {
   text-align: center;
 }
 
-.helptitle {
+.helpTitle {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 8px;
 }
 
-.helpphn {
+.helpPhone {
   font-size: 24px;
   font-weight: bold;
   background: linear-gradient(135deg, hsl(45, 100%, 85%) 0%, hsl(35, 90%, 68%) 100%);
@@ -64,43 +70,43 @@
   margin-bottom: 4px;
 }
 
-.helphrs {
+.helpHours {
   color: #9ca3af;
   font-size: 14px;
 }
 
-.mainfooter {
+.mainFooter {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 16px;
 }
 
-.footergrid {
+.footerGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 32px;
   margin-bottom: 32px;
 }
 
-.footercol {
+.footerColumn {
   display: flex;
   flex-direction: column;
 }
 
-.coltitle {
+.columnTitle {
   font-size: 16px;
   font-weight: bold;
   margin-bottom: 16px;
   color: #ffffff;
 }
 
-.collinks {
+.columnLinks {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.footerlink {
+.footerLink {
   color: #9ca3af;
   text-decoration: none;
   font-size: 14px;
@@ -112,11 +118,11 @@
   cursor: pointer;
 }
 
-.footerlink:hover {
+.footerLink:hover {
   color: #ffffff;
 }
 
-.contacthighlight {
+.contactHighlight {
   background: linear-gradient(135deg, hsl(45, 100%, 85%) 0%, hsl(35, 90%, 68%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -124,22 +130,12 @@
   font-weight: bold;
 }
 
-.bottomsec {
-  border-top: 1px solid #374151;
-  padding-top: 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-.sociallinks {
+.socialLinks {
   display: flex;
   gap: 16px;
 }
 
-.socialicon {
+.socialIcon {
   width: 40px;
   height: 40px;
   background-color: #374151;
@@ -150,13 +146,48 @@
   color: #ffffff;
   text-decoration: none;
   transition: background-color 0.3s ease;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
 }
 
-.socialicon:hover {
+.socialIcon:hover {
   background-color: #6b7280;
 }
 
-.footernote {
+.bottomSection {
+  border-top: 1px solid #374151;
+  padding-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.footerNote {
   color: #9ca3af;
   font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .topContent {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .downloadSection {
+    align-items: center;
+  }
+  
+  .footerGrid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .bottomSection {
+    flex-direction: column;
+    text-align: center;
+  }
 }

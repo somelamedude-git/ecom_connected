@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import '../styles/FooterSection.css';
+import '../styles/FooterSection.css'
 import SideMenu from './SideMenu';
 import axios from 'axios';
 
-function FooterSection({menumove = SideMenu}) {
+function FooterSection({menumove:SideMenu}) {
   const navigate= useNavigate();
   const [loggedin, setLoggedin] = useState(false);
   const safenav= (path)=>{
