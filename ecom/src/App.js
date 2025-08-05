@@ -13,6 +13,7 @@ import Layout from './components/Layout';
 import WishlistPage from './components/WishlistPage';
 import SellerProductsDashboard from './components/productList';
 import SellerOrdersPage from './components/sellerOrders';
+import SalesHeatmap from './components/HeatMap';
 
 
 function App() {
@@ -63,6 +64,12 @@ function App() {
         <Route path='/seller/orders' element={
           <Layout>
             <SellerOrdersPage/>
+          </Layout>
+        }></Route>
+
+        <Route path='/seller/analytics' element={
+          <Layout>
+            <SalesHeatmap/>
           </Layout>
         }></Route>
       </Routes>
