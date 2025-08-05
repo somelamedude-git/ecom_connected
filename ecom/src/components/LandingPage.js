@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from '../components/Header';
 import '../styles/LandingPage.css';
-import axios from 'axios';
+
 
 function LandingPage() {
   const navigate = useNavigate();
 
   return (
     <div className="landing-container">
-      <Header/>
+
 
       <main className="landinghero">
         <div className="herokaoverlay" />

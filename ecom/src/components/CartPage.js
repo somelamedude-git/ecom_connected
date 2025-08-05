@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Minus, Plus, Trash2, ArrowLeft, Shield, ShoppingBag } from 'lucide-react';
-import Header from './Header';
+
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import '../styles/CartPage.css';
@@ -77,7 +77,7 @@ const subtotal = !loading
 
   return (
     <div className="cart-container">
-      <Header/>
+  
       <div className="cart-main">
         {loading ? (
           <div className="loading">Loading...</div>
