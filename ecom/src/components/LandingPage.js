@@ -12,7 +12,9 @@ function LandingPage() {
     totalProducts: 0,
     totalSales: 0,
     totalOrders: 0,
+    pendingOrders: 0,
     monthlyRevenue: 0,
+    storeViews: 0,
     recentOrders: []
   });
 
@@ -27,11 +29,26 @@ function LandingPage() {
           setLoggedIn(true);
           setUserType(res.data.userType || 'Buyer');
           
+          // Only fetch seller stats if user is a seller
           if (res.data.userType === 'Seller') {
-            const statsRes = await axios.get('http://localhost:3000/seller/dashboard-stats', {
-              withCredentials: true
-            });
-            setSellerStats(statsRes.data);
+            try {
+              const statsRes = await axios.get('http://localhost:3000/seller/stats', {
+                withCredentials: true
+              });
+              setSellerStats(statsRes.data);
+            } catch (statsError) {
+              console.error('Error fetching seller stats:', statsError);
+              // Set default values if stats fetch fails
+              setSellerStats({
+                totalProducts: 0,
+                totalSales: 0,
+                totalOrders: 0,
+                pendingOrders: 0,
+                monthlyRevenue: 0,
+                storeViews: 0,
+                recentOrders: []
+              });
+            }
           }
         }
       } catch (error) {
@@ -149,7 +166,7 @@ function LandingPage() {
                 </h3>
               </div>
               <p style={{ fontSize: '32px', fontWeight: '700', color: '#fbbf24', margin: '8px 0' }}>
-                {sellerStats.totalProducts}
+                {sellerStats.totalProducts || 0}
               </p>
               <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
                 Click to manage products
@@ -181,7 +198,7 @@ function LandingPage() {
                 </h3>
               </div>
               <p style={{ fontSize: '32px', fontWeight: '700', color: '#22c55e', margin: '8px 0' }}>
-                ₹{sellerStats.monthlyRevenue?.toLocaleString() || '0'}
+                ₹{(sellerStats.monthlyRevenue || 0).toLocaleString()}
               </p>
               <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
                 View detailed analytics
@@ -213,7 +230,7 @@ function LandingPage() {
                 </h3>
               </div>
               <p style={{ fontSize: '32px', fontWeight: '700', color: '#3b82f6', margin: '8px 0' }}>
-                {sellerStats.totalOrders}
+                {sellerStats.totalOrders || 0}
               </p>
               <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
                 Manage your orders
@@ -231,27 +248,72 @@ function LandingPage() {
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-4px)';
-              e.currentTarget.style.boxShadow = '0 20px 40px rgba(168, 85, 247, 0.1)';
+              e.currentTarget.style.boxShadow = '0 20px 40px rgba(239, 68, 68, 0.1)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
               e.currentTarget.style.boxShadow = 'none';
             }}
-            onClick={() => navigate('/seller/store')}>
+            onClick={() => navigate('/seller/orders')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
-                <Eye size={24} color="#a855f7" />
+                <TrendingUp size={24} color="#ef4444" />
                 <h3 style={{ color: '#f9fafb', fontSize: '18px', fontWeight: '600', margin: 0 }}>
-                  Store Views
+                  Pending Orders
                 </h3>
               </div>
-              <p style={{ fontSize: '32px', fontWeight: '700', color: '#a855f7', margin: '8px 0' }}>
-                {sellerStats.storeViews || '0'}
+              <p style={{ fontSize: '32px', fontWeight: '700', color: '#ef4444', margin: '8px 0' }}>
+                {sellerStats.pendingOrders || 0}
               </p>
               <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
-                View your store page
+                Orders awaiting action
               </p>
             </div>
           </div>
+
+          {/* Recent Activity Section */}
+          {sellerStats.recentOrders && sellerStats.recentOrders.length > 0 && (
+            <div style={{
+              background: 'rgba(31, 41, 55, 0.8)',
+              border: '1px solid #374151',
+              borderRadius: '16px',
+              padding: '24px',
+              marginBottom: '40px',
+              backdropFilter: 'blur(10px)'
+            }}>
+              <h3 style={{ color: '#f9fafb', fontSize: '20px', fontWeight: '600', marginBottom: '20px' }}>
+                Recent Orders
+              </h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {sellerStats.recentOrders.slice(0, 3).map((order, index) => (
+                  <div key={index} style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '12px',
+                    background: 'rgba(55, 65, 81, 0.5)',
+                    borderRadius: '8px'
+                  }}>
+                    <div>
+                      <p style={{ color: '#f9fafb', margin: 0, fontWeight: '500' }}>
+                        Order #{order.id}
+                      </p>
+                      <p style={{ color: '#9ca3af', margin: 0, fontSize: '14px' }}>
+                        {order.customerName}
+                      </p>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <p style={{ color: '#22c55e', margin: 0, fontWeight: '600' }}>
+                        ₹{order.amount}
+                      </p>
+                      <p style={{ color: '#9ca3af', margin: 0, fontSize: '12px' }}>
+                        {order.status}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Quick Actions */}
           <div className="herocta" style={{ 

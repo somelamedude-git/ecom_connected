@@ -34,6 +34,7 @@ function Header({ menumove }) {
           setLoggedin(true);
           setUserType(res_login_status.data.userType || 'Buyer'); 
           
+          // Only fetch cart/wishlist data for buyers
           if (res_login_status.data.userType === 'Buyer') {
             const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
               withCredentials: true
@@ -41,6 +42,7 @@ function Header({ menumove }) {
             setWishlistCount(res_CWL.data.wish_length);
             setCartCount(res_CWL.data.cart_length);
           } else if (res_login_status.data.userType === 'Seller') {
+            // Only fetch seller stats for sellers
             const res_seller_stats = await axios.get('http://localhost:3000/seller/stats', {
               withCredentials: true
             });
@@ -219,6 +221,7 @@ function Header({ menumove }) {
             Add Product
           </button>
 
+          {/* Products Count */}
           <button onClick={() => safenav('/seller/products')} className={iconclass('products')}>
             <Package size={20} />
             <span className="cartthingy">{sellerStats.totalProducts}</span>
@@ -244,9 +247,14 @@ function Header({ menumove }) {
             <Store size={20} />
           </button>
 
-          {/* Profile & Settings */}
+          {/* Profile */}
           <button onClick={() => safenav('/seller/profile')} className={iconclass('profile')}>
             <User size={20} />
+          </button>
+
+          {/* Settings */}
+          <button onClick={() => safenav('/seller/settings')} className={iconclass('settings')}>
+            <Settings size={20} />
           </button>
 
           {loggedin && (
@@ -263,7 +271,7 @@ function Header({ menumove }) {
     return <BuyerHeader />; 
   }
 
-  return userType === 'seller' ? <SellerHeader /> : <BuyerHeader />;
+  return userType === 'Seller' ? <SellerHeader /> : <BuyerHeader />;
 }
 
 Header.propTypes = {
