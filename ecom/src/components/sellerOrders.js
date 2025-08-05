@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Package, User, Calendar, DollarSign, Truck, CheckCircle, XCircle, Clock, RotateCcw } from 'lucide-react';
 import axios from 'axios';
-import '../styles/Orders.css';
+import '../styles/SellerOrders.css'
 
 function SellerOrdersPage() {
   const navigate = useNavigate();

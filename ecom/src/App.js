@@ -12,7 +12,7 @@ import AboutPage from './components/AboutUs';
 import Layout from './components/Layout';
 import WishlistPage from './components/WishlistPage';
 import SellerProductsDashboard from './components/productList';
-import SellerOrdersPage from './components/sellerProducts';
+import SellerOrdersPage from './components/sellerOrders';
 
 
 function App() {
