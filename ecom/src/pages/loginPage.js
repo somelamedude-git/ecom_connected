@@ -21,7 +21,7 @@ export default function Login() {
 
   return (
     <div className="App">
-     <LoginPage onLogin={onLogin} tosignup={()=>navigate('/signup')}/>
+     <LoginPage onLogin={onLogin} tosignup={()=>navigate('/signup')} tolanding={()=>navigate('/')}/>
     </div>
   );
 }
