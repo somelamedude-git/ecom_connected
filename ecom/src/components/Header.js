@@ -40,7 +40,7 @@ function Header({ menumove }) {
             });
             setWishlistCount(res_CWL.data.wish_length);
             setCartCount(res_CWL.data.cart_length);
-          } else if (res_login_status.data.userType === 'seller') {
+          } else if (res_login_status.data.userType === 'Seller') {
             const res_seller_stats = await axios.get('http://localhost:3000/seller/stats', {
               withCredentials: true
             });
