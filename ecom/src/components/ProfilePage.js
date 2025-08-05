@@ -166,11 +166,6 @@ useEffect(() => {
 
   return (
     <div className="profile-container">
-      <Header
-        currentPage="profile"
-        menumove={onToggleMenu}
-      />
-
       <div className="profile-main">
         <button className="backb" onClick={() => nav('/')}>
           <ArrowLeft size={20} /> Back to Home
