@@ -38,7 +38,7 @@ function App() {
         <Route path='/products' element=
         {
           <Layout>
-            <ProfilePage/>
+            <ProductsPage/>
           </Layout>
         }></Route>
         <Route
