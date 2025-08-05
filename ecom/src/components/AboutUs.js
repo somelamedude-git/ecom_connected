@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { Heart, Star, Users, Sparkles, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Header from './Header';
 import '../styles/AboutPage.css';
 import clique_experience from '../assets/clique_experience.jpg';
 import clique_team from '../assets/clique_team.png';
@@ -46,7 +45,7 @@ function AboutPage() {
 
   return (
     <div className="about-container">
-      <Header  />
+
 
       <div className="main-content">
         <button className="backb" onClick={() => safenav('/')}>
