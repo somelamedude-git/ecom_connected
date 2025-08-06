@@ -25,17 +25,9 @@ const AddProductForm = ({ onBack, onSubmit }) => {
     const fetchData = async () => {
       try {
         setLoading(true);
-       
-        const categoriesResponse = await fetch('/api/categories');
-        if (categoriesResponse.ok) {
-          const categoriesData = await categoriesResponse.json();
-          setCategories(categoriesData.data || []);
-        }
-        const tagsResponse = await fetch('/api/tags');
-        if (tagsResponse.ok) {
-          const tagsData = await tagsResponse.json();
-          setAvailableTags(tagsData.data || []);
-        }
+        const response = await axios.get('http://localhost:3000/api/fetchCT'); // No credentials, query or body required, yay, so happy
+        setCategories(response.data.category_names);
+        setAvailableTags(response.data.tag_names);
       } catch (error) {
         console.error('Error fetching data:', error);
         alert('Error loading categories and tags');
