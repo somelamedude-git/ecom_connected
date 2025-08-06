@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, TrendingUp, BarChart3, ArrowLeft } from 'lucide-react';
 import axios from 'axios';
+import '../styles/Heatmap.css'
 
 const SalesHeatmap = () => {
   const [salesData, setSalesData] = useState({});

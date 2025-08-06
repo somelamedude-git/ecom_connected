@@ -194,6 +194,13 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
   const handleGoogleSignup = () => {
     console.log('Google signup clicked');
     alert('Google signup daalo idhar'); //lmao ok
@@ -284,6 +291,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="First name"
@@ -302,6 +310,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="Last name"
@@ -318,6 +327,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="age"
                   value={formData.age}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="Your age"
@@ -336,6 +346,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="phone_number"
                   value={formData.phone_number}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="+1 (555) 123-4567"
@@ -357,6 +368,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="username"
                   value={formData.username}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="Choose a username"
@@ -372,6 +384,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="kind"
                   value={formData.kind}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   style={{ ...styles.input, backgroundColor: '#1f2937' }}
                   required
                   onFocus={(e) => e.target.style.borderColor = 'hsl(45, 100%, 85%)'}
@@ -395,6 +408,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="your.email@example.com"
@@ -413,6 +427,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="password"
                   value={formData.password}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="Create a password"
@@ -431,6 +446,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
+                  onKeyPress={handleKeyPress}
                   required
                   style={styles.input}
                   placeholder="Confirm your password"
@@ -442,7 +458,7 @@ function SignupPage({ tolanding, onSignUp, tologin, alertText}) {
           </div>
 
           <button
-            type="submit"
+            type="button"
             style={styles.submitButton}
             onClick={handleSubmit}
             onMouseEnter={(e) => {

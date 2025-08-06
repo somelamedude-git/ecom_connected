@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
 
 const styles = {
   container: {
@@ -128,6 +127,13 @@ function LoginPage({ tolanding, onLogin, tosignup, onGoogleLogin , sellerKind}) 
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSubmit(e);
+    }
+  };
+
   return (
     <div style={styles.container}>
       <div style={styles.formContainer}>
@@ -169,6 +175,7 @@ function LoginPage({ tolanding, onLogin, tosignup, onGoogleLogin , sellerKind}) 
               name="email"
               value={formData.email}
               onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
               required
               style={styles.input}
               placeholder="your.email@example.com"
@@ -187,6 +194,7 @@ function LoginPage({ tolanding, onLogin, tosignup, onGoogleLogin , sellerKind}) 
               name="password"
               value={formData.password}
               onChange={handleInputChange}
+              onKeyPress={handleKeyPress}
               required
               style={styles.input}
               placeholder="Your password"
