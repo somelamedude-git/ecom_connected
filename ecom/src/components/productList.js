@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import {
   Search,
   Filter,
@@ -16,7 +15,6 @@ import {
 import '../styles/sellerProd.css';
 
 const SellerProductsPage = () => {
-  const nav = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +26,7 @@ const SellerProductsPage = () => {
   const [limit] = useState(10);
   const [hasNextPage, setHasNextPage] = useState(false);
   const [hasPrevPage, setHasPrevPage] = useState(false);
+  const [deletingProductId, setDeletingProductId] = useState(null);
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -101,6 +100,51 @@ const SellerProductsPage = () => {
     setCurrentPage(1);
   };
 
+  const handleDeleteProduct = async (productId, productName) => {
+    // Show confirmation dialog
+    const confirmDelete = window.confirm(
+      `Are you sure you want to delete "${productName}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmDelete) return;
+
+    setDeletingProductId(productId);
+    
+    try {
+      const response = await axios.delete(
+        `http://localhost:3000/seller/removeProduct/${productId}`,
+        { withCredentials: true }
+      );
+
+      if (response.data.success) {
+        // Show success message
+        alert('Product deleted successfully!');
+        
+        // Refresh the products list
+        await fetchProducts();
+        
+        // If we're on a page with no products after deletion, go to previous page
+        if (products.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      
+      let errorMessage = 'Failed to delete product. Please try again.';
+      
+      if (error.response) {
+        errorMessage = error.response.data?.message || errorMessage;
+      } else if (error.request) {
+        errorMessage = 'Network error. Please check your connection.';
+      }
+      
+      alert(errorMessage);
+    } finally {
+      setDeletingProductId(null);
+    }
+  };
+
   const handleSortChange = (e) => {
     setSortBy(e.target.value);
     setCurrentPage(1); // Reset to first page on sort change
@@ -149,7 +193,7 @@ const SellerProductsPage = () => {
     <div className="cart-container">
       <div className="cart-main">
         {/* Header */}
-        <button className="backb" onClick={()=>nav('/')}>
+        <button className="backb">
           <ArrowLeft size={20} />
           Back to Dashboard
         </button>
@@ -376,8 +420,25 @@ const SellerProductsPage = () => {
                           <button
                             className="removeb"
                             title="Delete Product"
+                            onClick={() => handleDeleteProduct(product._id, product.name)}
+                            disabled={deletingProductId === product._id}
+                            style={{
+                              opacity: deletingProductId === product._id ? 0.5 : 1,
+                              cursor: deletingProductId === product._id ? 'not-allowed' : 'pointer'
+                            }}
                           >
-                            <Trash2 size={16} />
+                            {deletingProductId === product._id ? (
+                              <div style={{
+                                width: '16px',
+                                height: '16px',
+                                border: '2px solid #ef4444',
+                                borderTop: '2px solid transparent',
+                                borderRadius: '50%',
+                                animation: 'spin 1s linear infinite'
+                              }} />
+                            ) : (
+                              <Trash2 size={16} />
+                            )}
                           </button>
                         </div>
                       </div>
@@ -519,6 +580,14 @@ const SellerProductsPage = () => {
             </div>
           </div>
         </div>
+
+        {/* CSS for spinner animation */}
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     </div>
   );
