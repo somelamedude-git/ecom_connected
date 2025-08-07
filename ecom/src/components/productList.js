@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  ShoppingCart, 
-  Package, 
-  Star, 
+import { useNavigate } from 'react-router-dom';
+import {
+  Search,
+  Filter,
+  Eye,
+  ShoppingCart,
+  Package,
+  Star,
   ArrowLeft,
   Edit,
   Trash2,
@@ -15,12 +16,14 @@ import {
 import '../styles/sellerProd.css';
 
 const SellerProductsPage = () => {
+  const nav = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalProducts, setTotalProducts] = useState(0);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // This is what gets sent to API
+  const [searchInput, setSearchInput] = useState(''); // This is what user types
   const [sortBy, setSortBy] = useState('newest');
   const [limit] = useState(10);
   const [hasNextPage, setHasNextPage] = useState(false);
@@ -37,13 +40,13 @@ const SellerProductsPage = () => {
         search: searchTerm
       };
 
-      const response = await axios.get('/api/seller/productList', {
+      const response = await axios.get('http://localhost:3000/seller/productList', {
         params: queryParams,
-        withCredentials:true
+        withCredentials: true
       });
 
       const data = response.data;
-      
+
       if (data.success) {
         setProducts(data.productsOfUser || []);
         setTotalPages(data.numberOfPages || 1);
@@ -70,12 +73,32 @@ const SellerProductsPage = () => {
   };
 
   useEffect(() => {
+    console.log('🔄 useEffect triggered - calling fetchProducts');
+    console.log('Dependencies changed:', { currentPage, sortBy, searchTerm });
     fetchProducts();
   }, [currentPage, sortBy, searchTerm]);
 
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
+  const handleSearchInputChange = (e) => {
+    setSearchInput(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e?.preventDefault();
+    setSearchTerm(searchInput.trim());
     setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleSearchSubmit();
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchInput('');
+    setSearchTerm('');
+    setCurrentPage(1);
   };
 
   const handleSortChange = (e) => {
@@ -91,7 +114,7 @@ const SellerProductsPage = () => {
 
   const getStockTotal = (stockMap) => {
     if (!stockMap || typeof stockMap !== 'object') return 0;
-    
+
     // Handle both Map objects and plain objects
     if (stockMap instanceof Map) {
       return Array.from(stockMap.values()).reduce((total, qty) => total + qty, 0);
@@ -126,7 +149,7 @@ const SellerProductsPage = () => {
     <div className="cart-container">
       <div className="cart-main">
         {/* Header */}
-        <button className="backb">
+        <button className="backb" onClick={()=>nav('/')}>
           <ArrowLeft size={20} />
           Back to Dashboard
         </button>
@@ -135,7 +158,7 @@ const SellerProductsPage = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h1>My Products ({totalProducts})</h1>
-              <button 
+              <button
                 style={{
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   color: '#000',
@@ -156,50 +179,75 @@ const SellerProductsPage = () => {
             </div>
 
             {/* Search and Filter Controls */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '1rem', 
+            <div style={{
+              display: 'flex',
+              gap: '1rem',
               marginBottom: '2rem',
               flexWrap: 'wrap'
             }}>
-              <div style={{ position: 'relative', flex: '1', minWidth: '250px' }}>
-                <Search 
-                  size={20} 
-                  style={{ 
-                    position: 'absolute', 
-                    left: '1rem', 
-                    top: '50%', 
-                    transform: 'translateY(-50%)', 
-                    color: '#9ca3af' 
-                  }} 
-                />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={searchTerm}
-                  onChange={handleSearch}
-                  style={{
-                    width: '100%',
-                    padding: '0.75rem 1rem 0.75rem 3rem',
-                    backgroundColor: '#111827',
-                    border: '1px solid #374151',
-                    borderRadius: '0.5rem',
-                    color: '#fff',
-                    fontSize: '0.875rem'
-                  }}
-                />
+              <div style={{ position: 'relative', flex: '1', minWidth: '250px', display: 'flex' }}>
+                <form onSubmit={handleSearchSubmit} style={{ display: 'flex', width: '100%' }}>
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <Search
+                      size={20}
+                      style={{
+                        position: 'absolute',
+                        left: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: '#9ca3af'
+                      }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="Search products..."
+                      value={searchInput}
+                      onChange={handleSearchInputChange}
+                      onKeyDown={handleSearchKeyDown}
+                      style={{
+                        width: '100%',
+                        padding: '0.75rem 1rem 0.75rem 3rem',
+                        backgroundColor: '#111827',
+                        border: '1px solid #374151',
+                        borderRadius: '0.5rem 0 0 0.5rem',
+                        color: '#fff',
+                        fontSize: '0.875rem',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '0.75rem 1rem',
+                      backgroundColor: '#374151',
+                      border: '1px solid #374151',
+                      borderLeft: 'none',
+                      borderRadius: '0 0.5rem 0.5rem 0',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      transition: 'background-color 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.target.style.backgroundColor = '#4b5563'}
+                    onMouseLeave={(e) => e.target.style.backgroundColor = '#374151'}
+                  >
+                    <Search size={16} />
+                  </button>
+                </form>
               </div>
-              
+
               <div style={{ position: 'relative' }}>
-                <Filter 
-                  size={20} 
-                  style={{ 
-                    position: 'absolute', 
-                    left: '1rem', 
-                    top: '50%', 
-                    transform: 'translateY(-50%)', 
-                    color: '#9ca3af' 
-                  }} 
+                <Filter
+                  size={20}
+                  style={{
+                    position: 'absolute',
+                    left: '1rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#9ca3af'
+                  }}
                 />
                 <select
                   value={sortBy}
@@ -224,13 +272,41 @@ const SellerProductsPage = () => {
               </div>
             </div>
 
+            {/* Show active search term if different from input */}
+            {searchTerm && searchTerm !== searchInput && (
+              <div style={{
+                backgroundColor: '#1f2937',
+                border: '1px solid #374151',
+                borderRadius: '0.5rem',
+                padding: '0.75rem 1rem',
+                marginBottom: '1rem',
+                fontSize: '0.875rem',
+                color: '#9ca3af'
+              }}>
+                Showing results for: "<span style={{ color: '#fff' }}>{searchTerm}</span>"
+                <button
+                  onClick={handleClearSearch}
+                  style={{
+                    marginLeft: '0.5rem',
+                    background: 'none',
+                    border: 'none',
+                    color: '#ef4444',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem'
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+
             {/* Products List */}
             {products.length === 0 ? (
               <div className="emptycart">
                 <Package size={64} className="emptycarticon" />
                 <h3>No Products Found</h3>
                 <p>
-                  {searchTerm 
+                  {searchTerm
                     ? `No products match "${searchTerm}". Try a different search term.`
                     : "You haven't added any products yet. Start by adding your first product!"
                   }
@@ -249,7 +325,7 @@ const SellerProductsPage = () => {
                           e.target.src = '/api/placeholder/80/80';
                         }}
                       />
-                      
+
                       <div className="iteminfo">
                         <h3 style={{ textTransform: 'capitalize' }}>{product.name}</h3>
                         <div>{product.description}</div>
@@ -284,11 +360,11 @@ const SellerProductsPage = () => {
                             </div>
                           )}
                         </div>
-                        
+
                         <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button 
+                          <button
                             className="qtycontrol"
-                            style={{ 
+                            style={{
                               padding: '0.5rem',
                               background: '#1f2937',
                               border: '1px solid #374151'
@@ -297,7 +373,7 @@ const SellerProductsPage = () => {
                           >
                             <Edit size={16} />
                           </button>
-                          <button 
+                          <button
                             className="removeb"
                             title="Delete Product"
                           >
@@ -311,10 +387,10 @@ const SellerProductsPage = () => {
 
                 {/* Pagination */}
                 {totalPages > 1 && (
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'center', 
-                    alignItems: 'center', 
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
                     gap: '1rem',
                     marginTop: '2rem'
                   }}>
@@ -332,11 +408,11 @@ const SellerProductsPage = () => {
                     >
                       Previous
                     </button>
-                    
+
                     <span style={{ color: '#9ca3af' }}>
                       Page {currentPage} of {totalPages}
                     </span>
-                    
+
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={!hasNextPage}
@@ -362,33 +438,33 @@ const SellerProductsPage = () => {
             <div className="sidebarcard">
               <div className="summary">
                 <h3>Product Statistics</h3>
-                
+
                 <div className="row">
                   <span>Total Products</span>
                   <span>{totalProducts}</span>
                 </div>
-                
+
                 <div className="row">
                   <span>Total Views</span>
                   <span>
                     {products.reduce((sum, product) => sum + (product.views || 0), 0)}
                   </span>
                 </div>
-                
+
                 <div className="row">
                   <span>Total Orders</span>
                   <span>
                     {products.reduce((sum, product) => sum + (product.times_ordered || 0), 0)}
                   </span>
                 </div>
-                
+
                 <div className="row">
                   <span>Items in Carts</span>
                   <span>
                     {products.reduce((sum, product) => sum + (product.added_to_cart || 0), 0)}
                   </span>
                 </div>
-                
+
                 <div className="row total">
                   <span>Total Stock</span>
                   <span>
