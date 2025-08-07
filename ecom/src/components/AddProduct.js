@@ -136,7 +136,7 @@ const AddProductForm = () => {
       formDataToSend.append('stock', JSON.stringify(stockObject));
       formDataToSend.append('tagNames', JSON.stringify(formData.tagNames));
 
-      formDataToSend.append('productImage', image);
+      formDataToSend.append('productImages', image);
 
       const response = await axios.post('http://localhost:3000/seller/addProduct', formDataToSend, {
   headers: {

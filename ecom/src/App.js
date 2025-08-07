@@ -14,7 +14,7 @@ import WishlistPage from './components/WishlistPage';
 import SellerProductsDashboard from './components/productList';
 import SellerOrdersPage from './components/sellerOrders';
 import SalesHeatmap from './components/HeatMap';
-
+import AddProductForm from './components/AddProduct';
 
 function App() {
   return (
@@ -70,6 +70,12 @@ function App() {
         <Route path='/seller/analytics' element={
           <Layout>
             <SalesHeatmap/>
+          </Layout>
+        }></Route>
+
+        <Route path='/seller/add-product' element={
+          <Layout>
+            <AddProductForm/>
           </Layout>
         }></Route>
       </Routes>
