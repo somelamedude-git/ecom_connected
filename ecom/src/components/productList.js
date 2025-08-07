@@ -1,955 +1,451 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Package, Eye, Star, ShoppingCart, TrendingUp, Filter, Search, Grid, List } from 'lucide-react';
 import axios from 'axios';
+import { 
+  Search, 
+  Filter, 
+  Eye, 
+  ShoppingCart, 
+  Package, 
+  Star, 
+  ArrowLeft,
+  Edit,
+  Trash2,
+  Plus
+} from 'lucide-react';
+import '../styles/sellerProd.css';
 
-const SellerProductsDashboard = () => {
+const SellerProductsPage = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [sortBy, setSortBy] = useState('newest');
-  const [filterBy, setFilterBy] = useState('all');
+  const [totalProducts, setTotalProducts] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
-  const [viewMode, setViewMode] = useState('grid');
+  const [sortBy, setSortBy] = useState('newest');
+  const [limit] = useState(10);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPrevPage, setHasPrevPage] = useState(false);
 
+  // Fetch products from API
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const queryParams = {
+        page: currentPage.toString(),
+        limit: limit.toString(),
+        sortBy: sortBy,
+        search: searchTerm
+      };
+
+      const response = await axios.get('/api/seller/productList', {
+        params: queryParams,
+        withCredentials:true
+      });
+
+      const data = response.data;
+      
+      if (data.success) {
+        setProducts(data.productsOfUser || []);
+        setTotalPages(data.numberOfPages || 1);
+        setTotalProducts(data.totalProducts || 0);
+        setHasNextPage(data.hasNextPage || false);
+        setHasPrevPage(data.hasPrevPage || false);
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      if (error.response) {
+        // Server responded with error status
+        console.error('Server Error:', error.response.data);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error('Network Error:', error.request);
+      } else {
+        // Something happened in setting up the request
+        console.error('Request Error:', error.message);
+      }
+      setProducts([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      try {
-        const res = await axios(`http://localhost:3000/seller/productList?page=${currentPage}&limit=${limit}&search=${sortBy}`,{
-            params:{
-                page:currentPage,
-                limit:limit,
-                sortBy: sortBy,
-                search: searchTerm
-            },
-            withCredentials: true
-        });
-        setProducts(res.data.productsOfUser);
-        setTotalPages(res.data.numberOfPages);
-        setError(null);
-      } catch (err) {
-        setError('Failed to fetch products');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProducts();
-  }, [currentPage, limit, sortBy, filterBy, searchTerm]);
+  }, [currentPage, sortBy, searchTerm]);
+
+  const handleSearch = (e) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1); // Reset to first page on search
+  };
+
+  const handleSortChange = (e) => {
+    setSortBy(e.target.value);
+    setCurrentPage(1); // Reset to first page on sort change
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
 
   const getStockTotal = (stockMap) => {
-    if (!stockMap || !(stockMap instanceof Object)) return 0;
-    return Array.from(stockMap.values()).reduce((total, count) => total + count, 0);
-  };
-
-  const getStockStatus = (stockMap) => {
-    const total = getStockTotal(stockMap);
-    if (total === 0) return { status: 'out-of-stock', text: 'Out of Stock' };
-    if (total < 10) return { status: 'low-stock', text: 'Low Stock' };
-    return { status: 'in-stock', text: 'In Stock' };
-  };
-
-  const renderStars = (rating) => {
-    return Array.from({ length: 5 }, (_, i) => (
-      <Star
-        key={i}
-        size={14}
-        className={i < Math.floor(rating) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-600'}
-      />
-    ));
-  };
-
-  const ProductCard = ({ product }) => {
-    const stockInfo = getStockStatus(product.stock);
+    if (!stockMap || typeof stockMap !== 'object') return 0;
     
+    // Handle both Map objects and plain objects
+    if (stockMap instanceof Map) {
+      return Array.from(stockMap.values()).reduce((total, qty) => total + qty, 0);
+    } else {
+      return Object.values(stockMap).reduce((total, qty) => total + (qty || 0), 0);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const formatPrice = (price) => {
+    return `$${price?.toFixed(2) || '0.00'}`;
+  };
+
+  if (loading) {
     return (
-      <div className="product-card">
-        <div className="product-image-container">
-          <img src={product.productImages} alt={product.name} className="product-image" />
-          <div className="product-overlay">
-            <div className="overlay-stats">
-              <div className="stat-item">
-                <Eye size={16} />
-                <span>{product.views}</span>
-              </div>
-              <div className="stat-item">
-                <ShoppingCart size={16} />
-                <span>{product.added_to_cart}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div className="product-info">
-          <div className="product-header">
-            <h3 className="product-name">{product.name}</h3>
-            <div className="product-category">{product.category.name}</div>
-          </div>
-          
-          <p className="product-description">{product.description}</p>
-          
-          <div className="product-stats">
-            <div className="stat-row">
-              <div className="rating">
-                {renderStars(product.reviews)}
-                <span className="rating-value">({product.reviews})</span>
-              </div>
-              <div className="popularity">
-                <TrendingUp size={14} />
-                <span>{product.popularity}%</span>
-              </div>
-            </div>
-            
-            <div className="stat-row">
-              <div className="orders-count">
-                <Package size={14} />
-                <span>{product.times_ordered} orders</span>
-              </div>
-              <div className={`stock-status ${stockInfo.status}`}>
-                {stockInfo.text} ({getStockTotal(product.stock)})
-              </div>
-            </div>
-          </div>
-          
-          <div className="product-footer">
-            <div className="product-price">${product.price}</div>
-            <div className="product-actions">
-              <button className="btn-secondary">Edit</button>
-              <button className="btn-primary">View Details</button>
-            </div>
-          </div>
+      <div className="cart-container">
+        <div className="cart-main">
+          <div className="loading">Loading your products...</div>
         </div>
       </div>
     );
-  };
-
-  const ProductListItem = ({ product }) => {
-    const stockInfo = getStockStatus(product.stock);
-    
-    return (
-      <div className="product-list-item">
-        <img src={product.productImages} alt={product.name} className="list-product-image" />
-        
-        <div className="list-product-info">
-          <div className="list-product-main">
-            <h3 className="list-product-name">{product.name}</h3>
-            <div className="list-product-category">{product.category.name}</div>
-            <p className="list-product-description">{product.description}</p>
-          </div>
-          
-          <div className="list-product-stats">
-            <div className="list-stat-item">
-              <Eye size={16} />
-              <span>{product.views} views</span>
-            </div>
-            <div className="list-stat-item">
-              <ShoppingCart size={16} />
-              <span>{product.added_to_cart} carts</span>
-            </div>
-            <div className="list-stat-item">
-              <Package size={16} />
-              <span>{product.times_ordered} orders</span>
-            </div>
-            <div className="rating">
-              {renderStars(product.reviews)}
-              <span className="rating-value">({product.reviews})</span>
-            </div>
-          </div>
-        </div>
-        
-        <div className="list-product-right">
-          <div className="list-product-price">${product.price}</div>
-          <div className={`stock-status ${stockInfo.status}`}>
-            {stockInfo.text} ({getStockTotal(product.stock)})
-          </div>
-          <div className="list-product-actions">
-            <button className="btn-secondary">Edit</button>
-            <button className="btn-primary">View</button>
-          </div>
-        </div>
-      </div>
-    );
-  };
+  }
 
   return (
-    <div className="products-container">
-      <div className="products-main">
-        <button className="back-btn">
+    <div className="cart-container">
+      <div className="cart-main">
+        {/* Header */}
+        <button className="backb">
           <ArrowLeft size={20} />
           Back to Dashboard
         </button>
 
-        <div className="products-hero">
-          <h1 className="products-title">
-            My <span className="products-highlight">Products</span>
-          </h1>
-          <p className="products-subtitle">
-            Manage your product inventory, view performance metrics, and track sales analytics all in one place.
-          </p>
-        </div>
-
-        <div className="products-controls">
-          <div className="search-filter-row">
-            <div className="search-container">
-              <Search size={20} className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="search-input"
-              />
-            </div>
-            
-            <div className="view-toggle">
-              <button
-                className={`toggle-btn ${viewMode === 'grid' ? 'active' : ''}`}
-                onClick={() => setViewMode('grid')}
+        <div className="cartgrid">
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+              <h1>My Products ({totalProducts})</h1>
+              <button 
+                style={{
+                  background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '0.5rem',
+                  padding: '0.75rem 1.5rem',
+                  fontSize: '0.875rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem'
+                }}
               >
-                <Grid size={18} />
-              </button>
-              <button
-                className={`toggle-btn ${viewMode === 'list' ? 'active' : ''}`}
-                onClick={() => setViewMode('list')}
-              >
-                <List size={18} />
+                <Plus size={16} />
+                Add Product
               </button>
             </div>
-          </div>
 
-          <div className="filter-sort-row">
-            <div className="products-filter">
-              <Filter size={16} />
-              <select
-                value={filterBy}
-                onChange={(e) => setFilterBy(e.target.value)}
-                className="filter-select"
-              >
-                <option value="all">All Categories</option>
-                <option value="electronics">Electronics</option>
-                <option value="clothing">Clothing</option>
-                <option value="home & garden">Home & Garden</option>
-                <option value="accessories">Accessories</option>
-              </select>
-            </div>
-
-            <div className="products-sort">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="sort-select"
-              >
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="price-high">Price: High to Low</option>
-                <option value="price-low">Price: Low to High</option>
-                <option value="popular">Most Popular</option>
-                <option value="views">Most Viewed</option>
-              </select>
-            </div>
-
-            <div className="limit-selector">
-              <select
-                value={limit}
-                onChange={(e) => setLimit(parseInt(e.target.value))}
-                className="limit-select"
-              >
-                <option value="5">5 per page</option>
-                <option value="10">10 per page</option>
-                <option value="20">20 per page</option>
-                <option value="50">50 per page</option>
-              </select>
-            </div>
-          </div>
-        </div>
-
-        {loading && (
-          <div className="products-status-msg">
-            <div className="loading-spinner"></div>
-            Loading your products...
-          </div>
-        )}
-
-        {error && (
-          <div className="products-error-msg">
-            {error}
-          </div>
-        )}
-
-        {!loading && !error && products.length === 0 && (
-          <div className="products-status-msg">
-            No products found. Try adjusting your search or filters.
-          </div>
-        )}
-
-        {!loading && !error && products.length > 0 && (
-          <>
-            <div className={`products-list ${viewMode}`}>
-              {viewMode === 'grid' 
-                ? products.map(product => <ProductCard key={product._id} product={product} />)
-                : products.map(product => <ProductListItem key={product._id} product={product} />)
-              }
-            </div>
-
-            <div className="pagination">
-              <button
-                className="pagination-btn"
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(currentPage - 1)}
-              >
-                Previous
-              </button>
-              
-              <div className="pagination-info">
-                Page {currentPage} of {totalPages}
+            {/* Search and Filter Controls */}
+            <div style={{ 
+              display: 'flex', 
+              gap: '1rem', 
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
+            }}>
+              <div style={{ position: 'relative', flex: '1', minWidth: '250px' }}>
+                <Search 
+                  size={20} 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1rem', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)', 
+                    color: '#9ca3af' 
+                  }} 
+                />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchTerm}
+                  onChange={handleSearch}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem 0.75rem 3rem',
+                    backgroundColor: '#111827',
+                    border: '1px solid #374151',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.875rem'
+                  }}
+                />
               </div>
               
-              <button
-                className="pagination-btn"
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(currentPage + 1)}
-              >
-                Next
-              </button>
+              <div style={{ position: 'relative' }}>
+                <Filter 
+                  size={20} 
+                  style={{ 
+                    position: 'absolute', 
+                    left: '1rem', 
+                    top: '50%', 
+                    transform: 'translateY(-50%)', 
+                    color: '#9ca3af' 
+                  }} 
+                />
+                <select
+                  value={sortBy}
+                  onChange={handleSortChange}
+                  style={{
+                    padding: '0.75rem 1rem 0.75rem 3rem',
+                    backgroundColor: '#111827',
+                    border: '1px solid #374151',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    minWidth: '150px'
+                  }}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="price-high">Price: High to Low</option>
+                  <option value="price-low">Price: Low to High</option>
+                  <option value="popular">Most Popular</option>
+                  <option value="views">Most Viewed</option>
+                </select>
+              </div>
             </div>
-          </>
-        )}
+
+            {/* Products List */}
+            {products.length === 0 ? (
+              <div className="emptycart">
+                <Package size={64} className="emptycarticon" />
+                <h3>No Products Found</h3>
+                <p>
+                  {searchTerm 
+                    ? `No products match "${searchTerm}". Try a different search term.`
+                    : "You haven't added any products yet. Start by adding your first product!"
+                  }
+                </p>
+              </div>
+            ) : (
+              <>
+                {products.map((product) => (
+                  <div key={product._id} className="cart-item">
+                    <div className="itemcontent">
+                      <img
+                        src={product.productImages || '/api/placeholder/80/80'}
+                        alt={product.name}
+                        className="itemimg"
+                        onError={(e) => {
+                          e.target.src = '/api/placeholder/80/80';
+                        }}
+                      />
+                      
+                      <div className="iteminfo">
+                        <h3 style={{ textTransform: 'capitalize' }}>{product.name}</h3>
+                        <div>{product.description}</div>
+                        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Eye size={14} />
+                            {product.views || 0} views
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <ShoppingCart size={14} />
+                            {product.added_to_cart || 0} in carts
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Package size={14} />
+                            {product.times_ordered || 0} ordered
+                          </span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                            <Star size={14} />
+                            {product.popularity || 0}
+                          </span>
+                        </div>
+                        <div className="itemprice">{formatPrice(product.price)}</div>
+                      </div>
+
+                      <div className="itemactions">
+                        <div style={{ textAlign: 'right', fontSize: '0.875rem', color: '#9ca3af' }}>
+                          <div>Stock: {getStockTotal(product.stock)}</div>
+                          <div>Added: {formatDate(product.createdAt)}</div>
+                          {product.times_returned > 0 && (
+                            <div style={{ color: '#ef4444' }}>
+                              Returns: {product.times_returned}
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button 
+                            className="qtycontrol"
+                            style={{ 
+                              padding: '0.5rem',
+                              background: '#1f2937',
+                              border: '1px solid #374151'
+                            }}
+                            title="Edit Product"
+                          >
+                            <Edit size={16} />
+                          </button>
+                          <button 
+                            className="removeb"
+                            title="Delete Product"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+
+                {/* Pagination */}
+                {totalPages > 1 && (
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    gap: '1rem',
+                    marginTop: '2rem'
+                  }}>
+                    <button
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={!hasPrevPage}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: hasPrevPage ? '#374151' : '#1f2937',
+                        color: hasPrevPage ? '#fff' : '#6b7280',
+                        border: '1px solid #374151',
+                        borderRadius: '0.5rem',
+                        cursor: hasPrevPage ? 'pointer' : 'not-allowed'
+                      }}
+                    >
+                      Previous
+                    </button>
+                    
+                    <span style={{ color: '#9ca3af' }}>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    
+                    <button
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={!hasNextPage}
+                      style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: hasNextPage ? '#374151' : '#1f2937',
+                        color: hasNextPage ? '#fff' : '#6b7280',
+                        border: '1px solid #374151',
+                        borderRadius: '0.5rem',
+                        cursor: hasNextPage ? 'pointer' : 'not-allowed'
+                      }}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Sidebar with Statistics */}
+          <div className="cartsidebar">
+            <div className="sidebarcard">
+              <div className="summary">
+                <h3>Product Statistics</h3>
+                
+                <div className="row">
+                  <span>Total Products</span>
+                  <span>{totalProducts}</span>
+                </div>
+                
+                <div className="row">
+                  <span>Total Views</span>
+                  <span>
+                    {products.reduce((sum, product) => sum + (product.views || 0), 0)}
+                  </span>
+                </div>
+                
+                <div className="row">
+                  <span>Total Orders</span>
+                  <span>
+                    {products.reduce((sum, product) => sum + (product.times_ordered || 0), 0)}
+                  </span>
+                </div>
+                
+                <div className="row">
+                  <span>Items in Carts</span>
+                  <span>
+                    {products.reduce((sum, product) => sum + (product.added_to_cart || 0), 0)}
+                  </span>
+                </div>
+                
+                <div className="row total">
+                  <span>Total Stock</span>
+                  <span>
+                    {products.reduce((sum, product) => sum + getStockTotal(product.stock), 0)}
+                  </span>
+                </div>
+              </div>
+
+              <div style={{ marginTop: '1.5rem' }}>
+                <h3 style={{ fontSize: '1rem', marginBottom: '1rem', color: '#9ca3af' }}>
+                  Quick Actions
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <button style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer'
+                  }}>
+                    Bulk Edit
+                  </button>
+                  <button style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer'
+                  }}>
+                    Export Data
+                  </button>
+                  <button style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    backgroundColor: '#1f2937',
+                    border: '1px solid #374151',
+                    borderRadius: '0.5rem',
+                    color: '#fff',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer'
+                  }}>
+                    Analytics
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-
-      <style jsx>{`
-        .products-container {
-          min-height: 100vh;
-          background-color: #000;
-          color: #fff;
-        }
-
-        .products-main {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 32px 16px;
-        }
-
-        .back-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #9ca3af;
-          background: none;
-          border: none;
-          font-size: 16px;
-          margin-bottom: 32px;
-          cursor: pointer;
-          transition: color 0.3s ease;
-        }
-
-        .back-btn:hover {
-          color: #facc15;
-        }
-
-        .products-hero {
-          text-align: center;
-          margin-bottom: 48px;
-        }
-
-        .products-title {
-          font-size: 64px;
-          font-weight: bold;
-          margin-bottom: 16px;
-        }
-
-        .products-highlight {
-          background: linear-gradient(135deg, hsl(45, 100%, 85%) 0%, hsl(35, 90%, 68%) 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .products-subtitle {
-          color: #9ca3af;
-          font-size: 18px;
-          max-width: 600px;
-          margin: 0 auto;
-          line-height: 1.6;
-        }
-
-        .products-controls {
-          margin-bottom: 32px;
-        }
-
-        .search-filter-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 16px;
-          gap: 16px;
-        }
-
-        .search-container {
-          position: relative;
-          flex: 1;
-          max-width: 400px;
-        }
-
-        .search-icon {
-          position: absolute;
-          left: 12px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #9ca3af;
-        }
-
-        .search-input {
-          width: 100%;
-          background-color: #1f2937;
-          border: 1px solid #374151;
-          border-radius: 8px;
-          padding: 12px 12px 12px 44px;
-          color: #fff;
-          font-size: 16px;
-          transition: border-color 0.3s ease;
-        }
-
-        .search-input:focus {
-          outline: none;
-          border-color: #facc15;
-        }
-
-        .view-toggle {
-          display: flex;
-          gap: 4px;
-        }
-
-        .toggle-btn {
-          background-color: #1f2937;
-          border: 1px solid #374151;
-          border-radius: 6px;
-          padding: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          color: #9ca3af;
-        }
-
-        .toggle-btn:hover {
-          border-color: #facc15;
-          color: #facc15;
-        }
-
-        .toggle-btn.active {
-          background: linear-gradient(135deg, hsl(45, 100%, 85%), hsl(35, 90%, 68%));
-          color: #000;
-          border-color: transparent;
-        }
-
-        .filter-sort-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 16px;
-          flex-wrap: wrap;
-        }
-
-        .products-filter {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #9ca3af;
-        }
-
-        .filter-select,
-        .sort-select,
-        .limit-select {
-          background-color: #1f2937;
-          color: #fff;
-          border: 1px solid #374151;
-          border-radius: 8px;
-          padding: 8px 12px;
-          cursor: pointer;
-          transition: border-color 0.3s ease;
-        }
-
-        .filter-select:focus,
-        .sort-select:focus,
-        .limit-select:focus {
-          outline: none;
-          border-color: #facc15;
-        }
-
-        .products-status-msg,
-        .products-error-msg {
-          text-align: center;
-          margin-top: 64px;
-          font-size: 16px;
-          color: #9ca3af;
-        }
-
-        .products-error-msg {
-          color: #f87171;
-        }
-
-        .loading-spinner {
-          width: 32px;
-          height: 32px;
-          border: 3px solid #374151;
-          border-top: 3px solid #facc15;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin: 0 auto 16px;
-        }
-
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        .products-list.grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 24px;
-          margin-top: 32px;
-        }
-
-        .products-list.list {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          margin-top: 32px;
-        }
-
-        .product-card {
-          background-color: #111827;
-          border-radius: 12px;
-          border: 1px solid #374151;
-          overflow: hidden;
-          transition: all 0.3s ease;
-        }
-
-        .product-card:hover {
-          border-color: #facc15;
-          transform: translateY(-4px);
-        }
-
-        .product-image-container {
-          position: relative;
-          height: 200px;
-          overflow: hidden;
-        }
-
-        .product-image {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.3s ease;
-        }
-
-        .product-card:hover .product-image {
-          transform: scale(1.05);
-        }
-
-        .product-overlay {
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.7);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          opacity: 0;
-          transition: opacity 0.3s ease;
-        }
-
-        .product-card:hover .product-overlay {
-          opacity: 1;
-        }
-
-        .overlay-stats {
-          display: flex;
-          gap: 16px;
-        }
-
-        .stat-item {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          color: #fff;
-          font-size: 14px;
-        }
-
-        .product-info {
-          padding: 20px;
-        }
-
-        .product-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 12px;
-        }
-
-        .product-name {
-          font-size: 18px;
-          font-weight: 600;
-          margin: 0;
-          text-transform: capitalize;
-        }
-
-        .product-category {
-          background-color: #374151;
-          color: #9ca3af;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          text-transform: uppercase;
-        }
-
-        .product-description {
-          color: #9ca3af;
-          font-size: 14px;
-          line-height: 1.5;
-          margin-bottom: 16px;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .product-stats {
-          margin-bottom: 16px;
-        }
-
-        .stat-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 8px;
-        }
-
-        .rating {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-        }
-
-        .rating-value {
-          color: #9ca3af;
-          font-size: 12px;
-          margin-left: 4px;
-        }
-
-        .popularity {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: #10b981;
-          font-size: 12px;
-        }
-
-        .orders-count {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: #9ca3af;
-          font-size: 12px;
-        }
-
-        .stock-status {
-          font-size: 12px;
-          padding: 2px 6px;
-          border-radius: 4px;
-        }
-
-        .stock-status.in-stock {
-          background-color: #10b981;
-          color: #fff;
-        }
-
-        .stock-status.low-stock {
-          background-color: #facc15;
-          color: #000;
-        }
-
-        .stock-status.out-of-stock {
-          background-color: #f87171;
-          color: #fff;
-        }
-
-        .product-footer {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .product-price {
-          font-size: 20px;
-          font-weight: 600;
-          color: #facc15;
-        }
-
-        .product-actions {
-          display: flex;
-          gap: 8px;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-          padding: 6px 12px;
-          border-radius: 6px;
-          font-size: 12px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          border: none;
-        }
-
-        .btn-primary {
-          background: linear-gradient(135deg, hsl(45, 100%, 85%), hsl(35, 90%, 68%));
-          color: #000;
-        }
-
-        .btn-secondary {
-          background-color: transparent;
-          color: #9ca3af;
-          border: 1px solid #374151;
-        }
-
-        .btn-primary:hover,
-        .btn-secondary:hover {
-          transform: translateY(-1px);
-        }
-
-        .btn-secondary:hover {
-          border-color: #facc15;
-          color: #facc15;
-        }
-
-        .product-list-item {
-          background-color: #111827;
-          border-radius: 12px;
-          border: 1px solid #374151;
-          padding: 16px;
-          display: flex;
-          gap: 16px;
-          align-items: center;
-          transition: all 0.3s ease;
-        }
-
-        .product-list-item:hover {
-          border-color: #facc15;
-        }
-
-        .list-product-image {
-          width: 80px;
-          height: 80px;
-          object-fit: cover;
-          border-radius: 8px;
-          flex-shrink: 0;
-        }
-
-        .list-product-info {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .list-product-main {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .list-product-name {
-          font-size: 16px;
-          font-weight: 600;
-          margin: 0;
-          text-transform: capitalize;
-        }
-
-        .list-product-category {
-          background-color: #374151;
-          color: #9ca3af;
-          padding: 2px 6px;
-          border-radius: 4px;
-          font-size: 10px;
-          text-transform: uppercase;
-          width: fit-content;
-        }
-
-        .list-product-description {
-          color: #9ca3af;
-          font-size: 12px;
-          margin: 0;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .list-product-stats {
-          display: flex;
-          gap: 16px;
-          flex-wrap: wrap;
-        }
-
-        .list-stat-item {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          color: #9ca3af;
-          font-size: 12px;
-        }
-
-        .list-product-right {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 8px;
-          text-align: right;
-        }
-
-        .list-product-price {
-          font-size: 18px;
-          font-weight: 600;
-          color: #facc15;
-        }
-
-        .list-product-actions {
-          display: flex;
-          gap: 8px;
-        }
-
-        .pagination {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          gap: 16px;
-          margin-top: 48px;
-        }
-
-        .pagination-btn {
-          background-color: #1f2937;
-          color: #fff;
-          border: 1px solid #374151;
-          border-radius: 8px;
-          padding: 8px 16px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-        }
-
-        .pagination-btn:hover:not(:disabled) {
-          border-color: #facc15;
-          background-color: #374151;
-        }
-
-        .pagination-btn:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        .pagination-info {
-          color: #9ca3af;
-          font-size: 14px;
-        }
-
-        @media (max-width: 768px) {
-          .products-title {
-            font-size: 48px;
-          }
-
-          .search-filter-row {
-            flex-direction: column;
-            gap: 12px;
-          }
-
-          .search-container {
-            max-width: 100%;
-          }
-
-          .filter-sort-row {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 12px;
-          }
-
-          .products-list.grid {
-            grid-template-columns: 1fr;
-          }
-
-          .product-list-item {
-            flex-direction: column;
-            align-items: flex-start;
-            text-align: left;
-          }
-
-          .list-product-image {
-            width: 100%;
-            height: 160px;
-          }
-
-          .list-product-right {
-            width: 100%;
-            flex-direction: row;
-            justify-content: space-between;
-            align-items: center;
-          }
-
-          .list-product-stats {
-            justify-content: space-between;
-            width: 100%;
-          }
-
-          .pagination {
-            flex-direction: column;
-            gap: 12px;
-          }
-        }
-
-        @media (max-width: 480px) {
-          .products-title {
-            font-size: 36px;
-          }
-
-          .products-main {
-            padding: 16px 12px;
-          }
-
-          .product-card {
-            margin: 0 -4px;
-          }
-
-          .product-info {
-            padding: 16px;
-          }
-
-          .product-header {
-            flex-direction: column;
-            gap: 8px;
-            align-items: flex-start;
-          }
-
-          .product-footer {
-            flex-direction: column;
-            gap: 12px;
-            align-items: stretch;
-          }
-
-          .product-actions {
-            justify-content: space-between;
-          }
-
-          .btn-primary,
-          .btn-secondary {
-            flex: 1;
-            text-align: center;
-          }
-        }
-      `}</style>
     </div>
   );
 };
 
-export default SellerProductsDashboard;
+export default SellerProductsPage;

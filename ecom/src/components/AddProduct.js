@@ -806,8 +806,8 @@ const AddProductForm = () => {
                 >
                   <option value="">Choose category</option>
                   {categories.map((category) => (
-                    <option key={category._id} value={category.name}>
-                      {category.name}
+                    <option key={category} value={category}>
+                      {category}
                     </option>
                   ))}
                 </select>
@@ -889,16 +889,16 @@ const AddProductForm = () => {
             <div className="tags-container">
               {tags.map((tag) => (
                 <button
-                  key={tag._id}
+                  key={tag}
                   type="button"
-                  onClick={() => handleTagToggle(tag.name)}
+                  onClick={() => handleTagToggle(tag)}
                   className={`tag-button ${
-                    formData.tagNames.includes(tag.name)
+                    formData.tagNames.includes(tag)
                       ? 'tag-button-active'
                       : 'tag-button-inactive'
                   }`}
                 >
-                  {tag.name}
+                  {tag}
                 </button>
               ))}
             </div>
