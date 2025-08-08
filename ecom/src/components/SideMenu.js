@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import axios from 'axios';
 import {
   X, Venus, Heart, ShoppingBag, Mars, User, Footprints, Watch, Palette, LogOut,
-  Package, BarChart3, Settings, Store, Plus, TrendingUp, DollarSign
+  Package, BarChart3, Settings, Store, Plus, TrendingUp
 } from 'lucide-react';
 import {useNavigate} from 'react-router-dom';
 import '../styles/SideMenu.css';

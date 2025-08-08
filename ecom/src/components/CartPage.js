@@ -43,6 +43,7 @@ function CartPage() {
         });
       } else if (set_quantity === 0) {
         removeItem(item_id, item_size);
+        return; // Exit early since removeItem handles state update
       }
 
       setcartitems(prev =>
@@ -59,12 +60,21 @@ function CartPage() {
 
   const removeItem = async (item_id, item_size) => {
     try {
+      // Update UI immediately (optimistic update)
+      setcartitems(prev =>
+        prev.filter(i => !(i.product._id === item_id && i.size === item_size))
+      );
+
+      // Make API call
       await axios.delete(`http://localhost:3000/cart/deleteItem/${item_id}`, {
         data: { size: item_size },
         withCredentials: true
       });
     } catch (err) {
       console.log(err);
+      // If API call fails, you might want to revert the optimistic update
+      // For now, we'll just log the error
+      // You could implement error handling to restore the item if needed
     }
   };
 
@@ -98,7 +108,7 @@ const subtotal = !loading
                   </div>
                 ) : (
                   cartitems.map(item => (
-                    <Link key={item.product._id} className='cart-item-link'>
+                    <Link key={`${item.product._id}-${item.size}`} className='cart-item-link'>
                     <div className="cart-item">
                       <div className="itemcontent">
                         <img src={item.product.image} alt={item.product.name} className="itemimg" />

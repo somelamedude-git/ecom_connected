@@ -9,7 +9,6 @@ const SellerProfile = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Fetch seller profile data
   useEffect(() => {
     const fetchSellerProfile = async () => {
       try {

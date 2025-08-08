@@ -1,11 +1,11 @@
 import './App.css';
-import ProductDescriptionPage from './components/SingleProduct';
+// import ProductDescriptionPage from './components/SingleProduct';
 import LandingPage from './components/LandingPage';
 import Login from './pages/loginPage';
 import RegistrationPage from './pages/registrationPage';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import CartPage from './components/CartPage';
-import { ToastContainer } from 'react-toastify';
+// import { ToastContainer } from 'react-toastify';
 import ProductsPage from './components/ProductPage';
 import ProfilePage from './components/ProfilePage';
 import AboutPage from './components/AboutUs';
@@ -15,6 +15,7 @@ import SellerProductsPage from './components/productList';
 import SellerOrdersPage from './components/sellerOrders';
 import SalesHeatmap from './components/HeatMap';
 import AddProductForm from './components/AddProduct';
+import SellerProfile from './components/sellerProfile';
 
 function App() {
   return (
@@ -79,6 +80,11 @@ function App() {
         <Route path='/seller/add-product' element={
           <Layout>
             <AddProductForm/>
+          </Layout>
+        }></Route>
+        <Route path='/seller/profile' element={
+          <Layout>
+            <SellerProfile/>
           </Layout>
         }></Route>
       </Routes>

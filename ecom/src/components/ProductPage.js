@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, Filter, Grid, List, Star, Heart, ShoppingCart, Eye, TrendingUp, SlidersHorizontal, ChevronDown } from 'lucide-react';
+import { ArrowLeft, Search, Filter, Grid, List, Star, Heart, ShoppingCart, Eye, TrendingUp, SlidersHorizontal, ChevronDown, X } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -17,21 +17,33 @@ const ProductsPage = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [limit, setLimit] = useState(10);
   const [wishlist, setWishlist] = useState(new Set());
+  const [cartLoading, setCartLoading] = useState(new Set());
+  const [wishlistLoading, setWishlistLoading] = useState(new Set());
+  
+  // Size selection popup states
+  const [showSizePopup, setShowSizePopup] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSize, setSelectedSize] = useState('');
 
-  const fetchProducts = async (page = 0, currentSortBy = sortBy) => {
+  // Get user token from localStorage or context
+  const getUserToken = () => {
+    return localStorage.getItem('authToken') || localStorage.getItem('token');
+  };
+
+  const fetchProducts = async (page = 0, currentSortBy = sortBy, currentLimit = limit) => {
     setLoading(true);
     try {
-      const response = await axios.get('http://localhost:3000/products/fetchProducts', {
+      const response = await axios.get('http://localhost:3000/product/fetchProducts', {
         params: {
           page: page,
-          limit: limit,
+          limit: currentLimit,
           sortBy: currentSortBy
         }
       });
 
       const data = response.data;
 
-      // Use sortedProducts from API response instead of products
+      // Backend returns sortedProducts - use them directly without re-sorting
       setProducts(data.sortedProducts || []);
       setTotalCount(data.totalCount);
       setTotalPages(data.num_pages);
@@ -39,13 +51,164 @@ const ProductsPage = () => {
     } catch (error) {
       console.error('Error fetching products:', error);
       setProducts([]);
+      setTotalCount(0);
+      setTotalPages(0);
+      setCurrentPage(0);
     } finally {
       setLoading(false);
     }
   };
 
+  // Fetch user's wishlist on component mount
+  const fetchWishlist = async () => {
+    const token = getUserToken();
+    if (!token) return;
+
+    try {
+      const response = await axios.get('http://localhost:3000/wishlist/getItems', {
+        withCredentials: true
+      });
+      
+      if (response.data.success) {
+        const wishlistIds = new Set(response.data.wishlist.map(item => item.product._id || item.product));
+        setWishlist(wishlistIds);
+      }
+    } catch (error) {
+      console.error('Error fetching wishlist:', error);
+    }
+  };
+
+  // Open size selection popup
+  const openSizeSelection = (product) => {
+    setSelectedProduct(product);
+    setSelectedSize('');
+    setShowSizePopup(true);
+  };
+
+  // Close size selection popup
+  const closeSizeSelection = () => {
+    setShowSizePopup(false);
+    setSelectedProduct(null);
+    setSelectedSize('');
+  };
+
+  // Add to cart function with size
+  const addToCart = async (productId, size) => {
+
+    if (!size) {
+      alert('Please select a size');
+      return;
+    }
+
+    setCartLoading(prev => new Set(prev).add(productId));
+    
+    try {
+      const response = await axios.post(`http://localhost:3000/cart/addItem/${productId}`, {
+        size_: size
+      });
+
+      if (response.data.success) {
+        alert('Product added to cart successfully!');
+        closeSizeSelection(); 
+      } else {
+        alert(response.data.message || 'Failed to add product to cart');
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      if (error.response?.status === 401) {
+        alert('Please login to add items to cart');
+      } else if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to add product to cart. Please try again.');
+      }
+    } finally {
+      setCartLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+  };
+
+  // Handle add to cart with size selection
+  const handleAddToCart = (product) => {
+    if (product.stock && Object.keys(product.stock).length > 0) {
+      // Product has sizes, show size selection popup
+      openSizeSelection(product);
+    } else {
+      // Product has no sizes, add directly
+      addToCart(product._id, null);
+    }
+  };
+
+  // Toggle wishlist function
+  const toggleWishlist = async (productId) => {
+    const token = getUserToken();
+    if (!token) {
+      alert('Please login to add items to wishlist');
+      return;
+    }
+
+    const isInWishlist = wishlist.has(productId);
+    setWishlistLoading(prev => new Set(prev).add(productId));
+
+    try {
+      if (isInWishlist) {
+        // Remove from wishlist
+        const response = await axios.delete(`http://localhost:3000/wishlist/remove/${productId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.data.success) {
+          setWishlist(prev => {
+            const newWishlist = new Set(prev);
+            newWishlist.delete(productId);
+            return newWishlist;
+          });
+        } else {
+          alert(response.data.message || 'Failed to remove from wishlist');
+        }
+      } else {
+        // Add to wishlist
+        const response = await axios.post('http://localhost:3000/wishlist/add', {
+          productId: productId
+        }, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.data.success) {
+          setWishlist(prev => new Set(prev).add(productId));
+        } else {
+          alert(response.data.message || 'Failed to add to wishlist');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      if (error.response?.status === 401) {
+        alert('Please login to manage your wishlist');
+      } else if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to update wishlist. Please try again.');
+      }
+    } finally {
+      setWishlistLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+  };
+
   useEffect(() => {
-    fetchProducts(currentPage, sortBy);
+    fetchProducts(currentPage, sortBy, limit);
+    fetchWishlist();
   }, [currentPage, limit, sortBy]);
 
   useEffect(() => {
@@ -64,18 +227,6 @@ const ProductsPage = () => {
     }
   }, [products, searchQuery]);
 
-  const toggleWishlist = (productId) => {
-    setWishlist(prev => {
-      const newWishlist = new Set(prev);
-      if (newWishlist.has(productId)) {
-        newWishlist.delete(productId);
-      } else {
-        newWishlist.add(productId);
-      }
-      return newWishlist;
-    });
-  };
-
   const calculateAverageRating = (reviews) => {
     if (!reviews || reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
@@ -83,9 +234,15 @@ const ProductsPage = () => {
   };
 
   const handlePageChange = (newPage) => {
-    if (newPage >= 0 && newPage < totalPages) {
+    if (searchQuery) {
+      // For search results, handle pagination client-side
       setCurrentPage(newPage);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      // For regular results, let backend handle pagination
+      if (newPage >= 0 && newPage < totalPages && newPage !== currentPage) {
+        setCurrentPage(newPage);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     }
   };
 
@@ -96,8 +253,7 @@ const ProductsPage = () => {
 
   const handleSearchChange = (e) => {
     setSearchQuery(e.target.value);
-    // Reset to first page when searching
-    setCurrentPage(0);
+    setCurrentPage(0); // Reset to first page when searching
   };
 
   const handleSortChange = (newSortBy) => {
@@ -105,17 +261,99 @@ const ProductsPage = () => {
     setCurrentPage(0); // Reset to first page when sorting changes
   };
 
-  // For search results, we need client-side pagination since API doesn't handle search
+  // Calculate pagination for search results (client-side)
   const searchTotalPages = Math.ceil(filteredProducts.length / limit);
   
   // Get current page results for display
-  const currentProducts = searchQuery ? 
-    filteredProducts.slice(currentPage * limit, (currentPage + 1) * limit) : 
-    products; // API already handles pagination when not searching
+  const getCurrentProducts = () => {
+    if (searchQuery) {
+      // For search results, handle pagination client-side
+      const startIndex = currentPage * limit;
+      const endIndex = startIndex + limit;
+      return filteredProducts.slice(startIndex, endIndex);
+    } else {
+      // For regular results, backend already handles pagination
+      return products;
+    }
+  };
+
+  const currentProducts = getCurrentProducts();
+
+  // Get correct pagination values
+  const getDisplayTotalPages = () => searchQuery ? searchTotalPages : totalPages;
+  const getDisplayTotalCount = () => searchQuery ? filteredProducts.length : totalCount;
+
+  // Size Selection Popup Component
+  const SizeSelectionPopup = () => {
+    if (!showSizePopup || !selectedProduct) return null;
+
+    const availableSizes = selectedProduct.stock ? Object.keys(selectedProduct.stock).filter(size => selectedProduct.stock[size] > 0) : [];
+    const isAddingToCart = cartLoading.has(selectedProduct._id);
+
+    return (
+      <div className="size-popup-overlay" onClick={closeSizeSelection}>
+        <div className="size-popup" onClick={(e) => e.stopPropagation()}>
+          <div className="size-popup-header">
+            <h3>Select Size</h3>
+            <button className="close-btn" onClick={closeSizeSelection}>
+              <X size={20} />
+            </button>
+          </div>
+          
+          <div className="size-popup-content">
+            <div className="product-info-mini">
+              <img src={selectedProduct.productImages} alt={selectedProduct.name} className="product-mini-image" />
+              <div>
+                <h4>{selectedProduct.name}</h4>
+                <p className="product-price">${selectedProduct.price}</p>
+              </div>
+            </div>
+
+            <div className="size-options">
+              <h5>Available Sizes:</h5>
+              <div className="size-grid">
+                {availableSizes.length > 0 ? (
+                  availableSizes.map(size => (
+                    <button
+                      key={size}
+                      className={`size-option ${selectedSize === size ? 'selected' : ''}`}
+                      onClick={() => setSelectedSize(size)}
+                    >
+                      {size.toUpperCase()}
+                      <span className="stock-count">({selectedProduct.stock[size]} left)</span>
+                    </button>
+                  ))
+                ) : (
+                  <p className="no-sizes">No sizes available</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="size-popup-footer">
+            <button className="cancel-btn" onClick={closeSizeSelection}>
+              Cancel
+            </button>
+            <button 
+              className={`confirm-add-btn ${isAddingToCart ? 'loading' : ''}`}
+              onClick={() => addToCart(selectedProduct._id, selectedSize)}
+              disabled={!selectedSize || isAddingToCart || availableSizes.length === 0}
+            >
+              <ShoppingCart size={16} className={isAddingToCart ? 'spin' : ''} />
+              {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const ProductCard = ({ product }) => {
     const avgRating = calculateAverageRating(product.reviews);
-    const stockCount = Array.from(product.stock.values()).reduce((sum, count) => sum + count, 0);
+    const stockCount = Object.values(product.stock || {}).reduce((sum, count) => sum + count, 0);
+    const isInWishlist = wishlist.has(product._id);
+    const isWishlistLoading = wishlistLoading.has(product._id);
+    const isCartLoading = cartLoading.has(product._id);
     
     return (
       <div className={`product-card ${viewMode}`}>
@@ -127,12 +365,18 @@ const ProductsPage = () => {
           />
           <div className="product-overlay">
             <button 
-              className={`wishlist-btn ${wishlist.has(product._id) ? 'active' : ''}`}
+              className={`wishlist-btn ${isInWishlist ? 'active' : ''} ${isWishlistLoading ? 'loading' : ''}`}
               onClick={() => toggleWishlist(product._id)}
+              disabled={isWishlistLoading}
+              title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
             >
-              <Heart size={18} fill={wishlist.has(product._id) ? '#ef4444' : 'none'} />
+              <Heart 
+                size={18} 
+                fill={isInWishlist ? '#ef4444' : 'none'} 
+                className={isWishlistLoading ? 'spin' : ''}
+              />
             </button>
-            <button className="quick-view-btn">
+            <button className="quick-view-btn" title="Quick view">
               <Eye size={18} />
             </button>
           </div>
@@ -185,11 +429,12 @@ const ProductsPage = () => {
               <span className="orders">{product.times_ordered} sold</span>
             </div>
             <button 
-              className="add-to-cart-btn"
-              disabled={stockCount === 0}
+              className={`add-to-cart-btn ${isCartLoading ? 'loading' : ''}`}
+              disabled={stockCount === 0 || isCartLoading}
+              onClick={() => handleAddToCart(product)}
             >
-              <ShoppingCart size={16} />
-              {stockCount === 0 ? 'Out of Stock' : 'Add to Cart'}
+              <ShoppingCart size={16} className={isCartLoading ? 'spin' : ''} />
+              {isCartLoading ? 'Adding...' : stockCount === 0 ? 'Out of Stock' : 'Add to Cart'}
             </button>
           </div>
         </div>
@@ -293,11 +538,11 @@ const ProductsPage = () => {
         {/* Results Info */}
         <div className="results-info">
           <span>
-            Showing {currentProducts.length} of {searchQuery ? filteredProducts.length : totalCount} products
+            Showing {currentProducts.length} of {getDisplayTotalCount()} products
             {searchQuery && ` for "${searchQuery}"`}
           </span>
           <span className="page-info">
-            Page {currentPage + 1} of {searchQuery ? searchTotalPages : totalPages}
+            Page {currentPage + 1} of {getDisplayTotalPages()}
           </span>
         </div>
 
@@ -345,7 +590,7 @@ const ProductsPage = () => {
         )}
 
         {/* Pagination */}
-        {(searchQuery ? searchTotalPages : totalPages) > 1 && (
+        {getDisplayTotalPages() > 1 && (
           <div className="pagination">
             <button 
               className="page-btn"
@@ -356,8 +601,8 @@ const ProductsPage = () => {
             </button>
             
             <div className="page-numbers">
-              {[...Array(searchQuery ? searchTotalPages : totalPages)].map((_, i) => {
-                const maxPages = searchQuery ? searchTotalPages : totalPages;
+              {[...Array(getDisplayTotalPages())].map((_, i) => {
+                const maxPages = getDisplayTotalPages();
                 // Show first page, last page, current page, and pages around current
                 const showPage = i === 0 || 
                                 i === maxPages - 1 || 
@@ -385,7 +630,7 @@ const ProductsPage = () => {
             
             <button 
               className="page-btn"
-              disabled={currentPage === (searchQuery ? searchTotalPages : totalPages) - 1}
+              disabled={currentPage === getDisplayTotalPages() - 1}
               onClick={() => handlePageChange(currentPage + 1)}
             >
               Next
@@ -394,6 +639,9 @@ const ProductsPage = () => {
         )}
 
       </div>
+
+      {/* Size Selection Popup */}
+      <SizeSelectionPopup />
 
       <style jsx>{`
         .products-container {
@@ -781,6 +1029,9 @@ const ProductsPage = () => {
           border-radius: 50%;
           cursor: pointer;
           transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .wishlist-btn:hover,
@@ -791,6 +1042,26 @@ const ProductsPage = () => {
 
         .wishlist-btn.active {
           color: #ef4444;
+        }
+
+        .wishlist-btn:disabled,
+        .add-to-cart-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .wishlist-btn.loading,
+        .add-to-cart-btn.loading {
+          opacity: 0.8;
+        }
+
+        .spin {
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         .popular-badge {
@@ -938,6 +1209,8 @@ const ProductsPage = () => {
           align-items: center;
           gap: 0.5rem;
           white-space: nowrap;
+          min-width: 120px;
+          justify-content: center;
         }
 
         .add-to-cart-btn:hover:not(:disabled) {
@@ -949,6 +1222,220 @@ const ProductsPage = () => {
           background: #374151;
           color: #9ca3af;
           cursor: not-allowed;
+        }
+
+        .add-to-cart-btn.loading {
+          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          opacity: 0.8;
+        }
+
+        /* Size Selection Popup Styles */
+        .size-popup-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.8);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 1rem;
+        }
+
+        .size-popup {
+          background: #111827;
+          border: 1px solid #374151;
+          border-radius: 1rem;
+          width: 100%;
+          max-width: 500px;
+          max-height: 90vh;
+          overflow-y: auto;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .size-popup-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 1.5rem 1.5rem 1rem;
+          border-bottom: 1px solid #374151;
+        }
+
+        .size-popup-header h3 {
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #fff;
+          margin: 0;
+        }
+
+        .close-btn {
+          background: none;
+          border: none;
+          color: #9ca3af;
+          cursor: pointer;
+          padding: 0.25rem;
+          border-radius: 0.25rem;
+          transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+          color: #fff;
+          background: #374151;
+        }
+
+        .size-popup-content {
+          padding: 1.5rem;
+        }
+
+        .product-info-mini {
+          display: flex;
+          gap: 1rem;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          padding: 1rem;
+          background: #1f2937;
+          border-radius: 0.5rem;
+        }
+
+        .product-mini-image {
+          width: 80px;
+          height: 80px;
+          object-fit: cover;
+          border-radius: 0.5rem;
+        }
+
+        .product-info-mini h4 {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #fff;
+          margin: 0 0 0.25rem;
+        }
+
+        .product-price {
+          font-size: 1.125rem;
+          font-weight: 700;
+          color: #fbbf24;
+          margin: 0;
+        }
+
+        .size-options h5 {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #9ca3af;
+          margin: 0 0 1rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .size-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 0.75rem;
+        }
+
+        .size-option {
+          background: #1f2937;
+          border: 2px solid #374151;
+          color: #fff;
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          text-align: center;
+          font-weight: 600;
+        }
+
+        .size-option:hover {
+          border-color: #6b7280;
+          background: #374151;
+        }
+
+        .size-option.selected {
+          border-color: #fbbf24;
+          background: rgba(251, 191, 36, 0.1);
+          color: #fbbf24;
+        }
+
+        .stock-count {
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 400;
+          color: #9ca3af;
+          margin-top: 0.25rem;
+        }
+
+        .size-option.selected .stock-count {
+          color: #fbbf24;
+        }
+
+        .no-sizes {
+          text-align: center;
+          color: #ef4444;
+          font-size: 0.875rem;
+          padding: 2rem;
+          background: #1f2937;
+          border-radius: 0.5rem;
+        }
+
+        .size-popup-footer {
+          display: flex;
+          gap: 1rem;
+          padding: 1rem 1.5rem 1.5rem;
+          border-top: 1px solid #374151;
+        }
+
+        .cancel-btn {
+          flex: 1;
+          background: #374151;
+          border: none;
+          color: #9ca3af;
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          cursor: pointer;
+          font-size: 0.875rem;
+          font-weight: 600;
+          transition: all 0.2s ease;
+        }
+
+        .cancel-btn:hover {
+          background: #4b5563;
+          color: #fff;
+        }
+
+        .confirm-add-btn {
+          flex: 2;
+          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          color: #000;
+          border: none;
+          border-radius: 0.5rem;
+          padding: 0.75rem 1rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        .confirm-add-btn:hover:not(:disabled) {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+        }
+
+        .confirm-add-btn:disabled {
+          background: #374151;
+          color: #9ca3af;
+          cursor: not-allowed;
+        }
+
+        .confirm-add-btn.loading {
+          background: linear-gradient(135deg, #fbbf24, #f59e0b);
+          opacity: 0.8;
         }
 
         .pagination {
@@ -1077,6 +1564,25 @@ const ProductsPage = () => {
             width: 100%;
             justify-content: center;
           }
+
+          .size-popup {
+            margin: 1rem;
+            max-width: none;
+          }
+
+          .size-grid {
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.5rem;
+          }
+
+          .size-popup-footer {
+            flex-direction: column;
+          }
+
+          .product-info-mini {
+            flex-direction: column;
+            text-align: center;
+          }
         }
 
         @media (max-width: 640px) {
@@ -1119,6 +1625,10 @@ const ProductsPage = () => {
           .limit-dropdown,
           .sort-dropdown {
             justify-content: space-between;
+          }
+
+          .size-popup-overlay {
+            padding: 0.5rem;
           }
         }
       `}</style>
