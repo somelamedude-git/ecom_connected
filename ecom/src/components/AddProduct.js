@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Upload, X, Plus, Minus, AlertCircle, CheckCircle } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AddProductForm = () => {
+  const nav = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -701,12 +703,11 @@ const AddProductForm = () => {
       `}</style>
 
       <div className="container">
-        {/* Header */}
         <button className="back-button">
           <div className="back-icon-container">
             <ArrowLeft size={20} />
           </div>
-          <span className="back-text">Back to Dashboard</span>
+          <span className="back-text" onClick={nav('/')}>Back to Dashboard</span>
         </button>
 
         <div className="header">
@@ -716,7 +717,6 @@ const AddProductForm = () => {
           </p>
         </div>
 
-        {/* Alert Messages */}
         {error && (
           <div className="alert alert-error">
             <div className="alert-icon">
