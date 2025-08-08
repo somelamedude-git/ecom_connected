@@ -151,7 +151,7 @@ function Header({ menumove }) {
       <div className="headercontent">
         <div
           className="logo"
-          onClick={() => safenav('/seller/dashboard')}
+          onClick={() => safenav('/')}
           onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
           onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >

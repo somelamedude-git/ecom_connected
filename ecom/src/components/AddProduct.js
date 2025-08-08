@@ -703,11 +703,11 @@ const AddProductForm = () => {
       `}</style>
 
       <div className="container">
-        <button className="back-button">
+        <button className="back-button" onClick={()=>nav('/')}>
           <div className="back-icon-container">
             <ArrowLeft size={20} />
           </div>
-          <span className="back-text" onClick={nav('/')}>Back to Dashboard</span>
+          <span className="back-text">Back to Dashboard</span>
         </button>
 
         <div className="header">
