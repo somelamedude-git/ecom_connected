@@ -13,8 +13,10 @@ import {
   Plus
 } from 'lucide-react';
 import '../styles/sellerProd.css';
+import { useNavigate } from 'react-router-dom';
 
 const SellerProductsPage = () => {
+  const nav = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -109,7 +111,7 @@ const SellerProductsPage = () => {
     if (!confirmDelete) return;
 
     setDeletingProductId(productId);
-    
+
     try {
       const response = await axios.delete(
         `http://localhost:3000/seller/removeProduct/${productId}`,
@@ -119,10 +121,10 @@ const SellerProductsPage = () => {
       if (response.data.success) {
         // Show success message
         alert('Product deleted successfully!');
-        
+
         // Refresh the products list
         await fetchProducts();
-        
+
         // If we're on a page with no products after deletion, go to previous page
         if (products.length === 1 && currentPage > 1) {
           setCurrentPage(currentPage - 1);
@@ -130,15 +132,15 @@ const SellerProductsPage = () => {
       }
     } catch (error) {
       console.error('Error deleting product:', error);
-      
+
       let errorMessage = 'Failed to delete product. Please try again.';
-      
+
       if (error.response) {
         errorMessage = error.response.data?.message || errorMessage;
       } else if (error.request) {
         errorMessage = 'Network error. Please check your connection.';
       }
-      
+
       alert(errorMessage);
     } finally {
       setDeletingProductId(null);
@@ -193,7 +195,7 @@ const SellerProductsPage = () => {
     <div className="cart-container">
       <div className="cart-main">
         {/* Header */}
-        <button className="backb">
+        <button className="backb" onClick={() => nav('/')}>
           <ArrowLeft size={20} />
           Back to Dashboard
         </button>
@@ -202,7 +204,7 @@ const SellerProductsPage = () => {
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
               <h1>My Products ({totalProducts})</h1>
-              <button
+              <button onClick={()=>nav('/seller/add-product')}
                 style={{
                   background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
                   color: '#000',
