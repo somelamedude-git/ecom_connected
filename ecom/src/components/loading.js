@@ -31,7 +31,6 @@ const ConcentricSquaresLoader = () => {
         </div>
       </div>
       
-      {/* Floating particles - more visible */}
       <div className="absolute inset-0 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div
@@ -58,7 +57,7 @@ const ConcentricSquaresLoader = () => {
            style={{ animation: 'spin 12s linear infinite reverse' }}></div>
       <div className="absolute bottom-12 right-10 w-2 h-2 bg-yellow-400 opacity-30 animate-pulse"></div>
       
-      {/* Radial gradient overlay - less intense */}
+  
       <div className="absolute inset-0 bg-gradient-radial from-transparent via-black/10 to-black/30"></div>
       <div className="relative w-32 h-32">
         {/* Outermost square */}
@@ -69,14 +68,14 @@ const ConcentricSquaresLoader = () => {
              }}>
         </div>
         
-        {/* Second square */}
+       
         <div className="absolute inset-2 border-2 border-gray-500 rounded-sm"
              style={{ 
                animation: 'spin 2.2s linear infinite reverse'
              }}>
         </div>
         
-        {/* Third square */}
+       
         <div className="absolute inset-4 border-2 border-gray-400 animate-spin rounded-sm"
              style={{ 
                animationDuration: '1.8s',
@@ -84,14 +83,13 @@ const ConcentricSquaresLoader = () => {
              }}>
         </div>
         
-        {/* Fourth square */}
+    
         <div className="absolute inset-6 border-2 border-gray-300 rounded-sm"
              style={{ 
                animation: 'spin 1.4s linear infinite reverse'
              }}>
         </div>
         
-        {/* Innermost square with golden accent */}
         <div className="absolute inset-8 border-2 border-yellow-400 animate-spin rounded-sm"
              style={{ 
                animationDuration: '1s',
@@ -99,12 +97,10 @@ const ConcentricSquaresLoader = () => {
              }}>
         </div>
         
-        {/* Central dot */}
         <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-yellow-400 rounded-full transform -translate-x-1/2 -translate-y-1/2 animate-pulse">
         </div>
       </div>
       
-      {/* Loading text */}
       <div className="absolute mt-48 text-gray-400 text-sm font-medium tracking-wider">
         Loading...
       </div>

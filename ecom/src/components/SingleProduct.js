@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {ArrowLeft, Heart, ShoppingBag, Star, Plus, Minus, Share, Shield, Truck, RotateCcw, Send, User} from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import Header from './Header';
 import '../styles/singleProduct.css'
 
 function ProductDescriptionPage() {
@@ -35,7 +34,7 @@ function ProductDescriptionPage() {
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`/api/products/${product_id}`);
+      const response = await axios.get(`http://localhost:3000/product/details/${product_id}`);
       const { product_info, product_sizes } = response.data;
       
       setProduct(product_info);
@@ -111,7 +110,7 @@ const response = await axios.post(
 
     try{
         await axios.post(`http://localhost:3000/cart/addItem/${product_id}`, {
-        _size: selectedSize
+        size_: selectedSize
     },
 {withCredentials: true}
 )
@@ -355,7 +354,6 @@ useEffect(()=>{
 
   return (
     <div className="product-container">
-      <Header currentPage="product" cartCount={3} wishlistCount={8} isLoggedIn={true} />
 
       <div className="main-content">
         <button className="back-button" onClick={() => navigate('/products')}>

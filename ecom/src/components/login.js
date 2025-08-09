@@ -25,9 +25,9 @@ const styles = {
   orb: {
     position: 'absolute',
     borderRadius: '50%',
-    background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%)',
-    filter: 'blur(40px)',
-    animation: 'float 6s ease-in-out infinite'
+    background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.08) 0%, rgba(251, 191, 36, 0.04) 100%)',
+    filter: 'blur(80px)',
+    animation: 'float 8s ease-in-out infinite'
   },
   formContainer: {
     backgroundColor: 'rgba(17, 24, 39, 0.8)',
@@ -77,7 +77,7 @@ const styles = {
     transform: 'translate(-50%, -50%)',
     width: '150px',
     height: '40px',
-    background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.2) 0%, rgba(251, 191, 36, 0.2) 100%)',
+    background: 'linear-gradient(135deg, rgba(253, 224, 71, 0.1) 0%, rgba(251, 191, 36, 0.1) 100%)',
     borderRadius: '50%',
     filter: 'blur(20px)',
     zIndex: -1
@@ -196,199 +196,214 @@ const styles = {
 const FloatingOrbs = () => {
   return (
     <div style={styles.backgroundOrbs}>
-      {/* Main floating orbs - MUCH BIGGER */}
+      {/* More pronounced main orbs */}
       <div style={{
         ...styles.orb,
-        width: '500px',
-        height: '500px',
-        top: '-250px',
-        left: '-200px',
-        background: 'radial-gradient(circle, rgba(253, 224, 71, 0.3) 0%, rgba(251, 191, 36, 0.2) 50%, transparent 100%)',
+        width: '450px',
+        height: '450px',
+        top: '-120px',
+        left: '-120px',
+        background: 'radial-gradient(circle, rgba(253, 224, 71, 0.15) 0%, rgba(251, 191, 36, 0.08) 50%, transparent 70%)',
         filter: 'blur(60px)',
         animationDelay: '0s'
       }} />
       <div style={{
         ...styles.orb,
-        width: '400px',
-        height: '400px',
-        top: '40%',
-        right: '-200px',
-        background: 'radial-gradient(circle, rgba(251, 191, 36, 0.4) 0%, rgba(253, 224, 71, 0.2) 50%, transparent 100%)',
+        width: '350px',
+        height: '350px',
+        top: '25%',
+        right: '-100px',
+        background: 'radial-gradient(circle, rgba(251, 191, 36, 0.18) 0%, rgba(253, 224, 71, 0.06) 50%, transparent 70%)',
         filter: 'blur(50px)',
-        animationDelay: '2s'
+        animationDelay: '3s'
       }} />
       <div style={{
         ...styles.orb,
-        width: '350px',
-        height: '350px',
-        bottom: '-150px',
-        left: '20%',
-        background: 'radial-gradient(circle, rgba(253, 224, 71, 0.35) 0%, rgba(251, 191, 36, 0.15) 50%, transparent 100%)',
-        filter: 'blur(45px)',
-        animationDelay: '4s'
+        width: '300px',
+        height: '300px',
+        bottom: '-80px',
+        left: '15%',
+        background: 'radial-gradient(circle, rgba(253, 224, 71, 0.12) 0%, rgba(251, 191, 36, 0.05) 50%, transparent 70%)',
+        filter: 'blur(55px)',
+        animationDelay: '6s'
       }} />
       
-      {/* MASSIVE geometric patterns */}
+      {/* Multiple animated geometric circles with hover effects */}
       <div style={{
         position: 'absolute',
-        top: '5%',
-        right: '10%',
-        width: '200px',
-        height: '200px',
-        border: '3px solid rgba(253, 224, 71, 0.6)',
+        top: '18%',
+        right: '12%',
+        width: '80px',
+        height: '80px',
+        border: '1.5px solid rgba(253, 224, 71, 0.3)',
         borderRadius: '50%',
-        animation: 'spin 15s linear infinite'
-      }} />
+        animation: 'spin 20s linear infinite',
+        boxShadow: '0 0 15px rgba(253, 224, 71, 0.1)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        pointerEvents: 'auto'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'scale(1.3) rotate(180deg)';
+        e.target.style.borderColor = 'rgba(253, 224, 71, 0.8)';
+        e.target.style.boxShadow = '0 0 30px rgba(253, 224, 71, 0.4)';
+        e.target.style.animationPlayState = 'paused';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'scale(1) rotate(0deg)';
+        e.target.style.borderColor = 'rgba(253, 224, 71, 0.3)';
+        e.target.style.boxShadow = '0 0 15px rgba(253, 224, 71, 0.1)';
+        e.target.style.animationPlayState = 'running';
+      }}
+      />
       
       <div style={{
         position: 'absolute',
         top: '60%',
-        left: '5%',
-        width: '150px',
-        height: '150px',
-        border: '2px solid rgba(251, 191, 36, 0.7)',
-        transform: 'rotate(45deg)',
-        animation: 'float 6s ease-in-out infinite reverse'
-      }} />
-      
-      {/* BIG glowing dots */}
-      <div style={{
-        position: 'absolute',
-        top: '20%',
-        left: '85%',
-        width: '20px',
-        height: '20px',
-        backgroundColor: 'rgba(253, 224, 71, 0.9)',
+        left: '8%',
+        width: '60px',
+        height: '60px',
+        border: '1px solid rgba(251, 191, 36, 0.4)',
         borderRadius: '50%',
-        boxShadow: '0 0 30px rgba(253, 224, 71, 0.8)',
-        animation: 'twinkle 2s ease-in-out infinite'
-      }} />
+        animation: 'spinReverse 15s linear infinite',
+        boxShadow: '0 0 12px rgba(251, 191, 36, 0.08)',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        pointerEvents: 'auto'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'scale(1.4) translateY(-20px)';
+        e.target.style.borderColor = 'rgba(251, 191, 36, 0.9)';
+        e.target.style.boxShadow = '0 0 25px rgba(251, 191, 36, 0.3)';
+        e.target.style.animationPlayState = 'paused';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'scale(1) translateY(0px)';
+        e.target.style.borderColor = 'rgba(251, 191, 36, 0.4)';
+        e.target.style.boxShadow = '0 0 12px rgba(251, 191, 36, 0.08)';
+        e.target.style.animationPlayState = 'running';
+      }}
+      />
       
-      <div style={{
-        position: 'absolute',
-        top: '40%',
-        left: '2%',
-        width: '15px',
-        height: '15px',
-        backgroundColor: 'rgba(251, 191, 36, 0.9)',
-        borderRadius: '50%',
-        boxShadow: '0 0 25px rgba(251, 191, 36, 0.7)',
-        animation: 'twinkle 1.5s ease-in-out infinite 0.5s'
-      }} />
-      
-      <div style={{
-        position: 'absolute',
-        top: '75%',
-        right: '20%',
-        width: '25px',
-        height: '25px',
-        backgroundColor: 'rgba(253, 224, 71, 0.8)',
-        borderRadius: '50%',
-        boxShadow: '0 0 40px rgba(253, 224, 71, 0.9)',
-        animation: 'twinkle 2.5s ease-in-out infinite 1s'
-      }} />
-      
-      {/* BRIGHT gradient beams */}
-      <div style={{
-        position: 'absolute',
-        top: '25%',
-        left: '-20%',
-        width: '600px',
-        height: '4px',
-        background: 'linear-gradient(90deg, transparent, rgba(253, 224, 71, 0.8) 30%, rgba(251, 191, 36, 0.9) 70%, transparent)',
-        transform: 'rotate(15deg)',
-        animation: 'fadeInOut 3s ease-in-out infinite',
-        boxShadow: '0 0 20px rgba(253, 224, 71, 0.6)'
-      }} />
-      
-      <div style={{
-        position: 'absolute',
-        bottom: '15%',
-        right: '-20%',
-        width: '500px',
-        height: '3px',
-        background: 'linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.9) 20%, rgba(253, 224, 71, 0.8) 80%, transparent)',
-        transform: 'rotate(-25deg)',
-        animation: 'fadeInOut 4s ease-in-out infinite 1.5s',
-        boxShadow: '0 0 15px rgba(251, 191, 36, 0.5)'
-      }} />
-      
-      {/* GLOWING hexagons */}
-      <div style={{
-        position: 'absolute',
-        top: '10%',
-        left: '30%',
-        width: '120px',
-        height: '120px',
-        background: 'rgba(253, 224, 71, 0.1)',
-        border: '3px solid rgba(253, 224, 71, 0.6)',
-        clipPath: 'polygon(30% 0%, 70% 0%, 100% 50%, 70% 100%, 30% 100%, 0% 50%)',
-        animation: 'pulse 4s ease-in-out infinite',
-        boxShadow: '0 0 30px rgba(253, 224, 71, 0.4)'
-      }} />
-      
-      {/* MASSIVE concentric circles with glow */}
-      <div style={{
-        position: 'absolute',
-        bottom: '5%',
-        left: '65%',
-        width: '250px',
-        height: '250px',
-        border: '2px solid rgba(251, 191, 36, 0.4)',
-        borderRadius: '50%',
-        animation: 'expand 6s ease-in-out infinite',
-        boxShadow: '0 0 40px rgba(251, 191, 36, 0.3)'
-      }}>
-        <div style={{
-          position: 'absolute',
-          top: '50px',
-          left: '50px',
-          width: '150px',
-          height: '150px',
-          border: '2px solid rgba(253, 224, 71, 0.6)',
-          borderRadius: '50%',
-          animation: 'expand 6s ease-in-out infinite 1s',
-          boxShadow: '0 0 30px rgba(253, 224, 71, 0.4)'
-        }}>
-          <div style={{
-            position: 'absolute',
-            top: '50px',
-            left: '50px',
-            width: '50px',
-            height: '50px',
-            border: '2px solid rgba(251, 191, 36, 0.8)',
-            borderRadius: '50%',
-            animation: 'expand 6s ease-in-out infinite 2s',
-            boxShadow: '0 0 20px rgba(251, 191, 36, 0.6)'
-          }} />
-        </div>
-      </div>
-      
-      {/* Diagonal lightning bolts */}
       <div style={{
         position: 'absolute',
         top: '35%',
-        right: '30%',
-        width: '2px',
-        height: '200px',
-        background: 'linear-gradient(180deg, transparent, rgba(253, 224, 71, 0.8), transparent)',
-        transform: 'rotate(25deg)',
-        animation: 'lightningFlash 5s ease-in-out infinite',
-        boxShadow: '0 0 15px rgba(253, 224, 71, 0.7)'
-      }} />
+        left: '15%',
+        width: '40px',
+        height: '40px',
+        border: '1px solid rgba(253, 224, 71, 0.25)',
+        borderRadius: '50%',
+        animation: 'floatSpin 12s ease-in-out infinite',
+        boxShadow: '0 0 8px rgba(253, 224, 71, 0.06)',
+        cursor: 'pointer',
+        transition: 'all 0.4s ease',
+        pointerEvents: 'auto'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'scale(2) rotate(360deg)';
+        e.target.style.borderColor = 'rgba(253, 224, 71, 0.7)';
+        e.target.style.boxShadow = '0 0 20px rgba(253, 224, 71, 0.2)';
+        e.target.style.animationPlayState = 'paused';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'scale(1) rotate(0deg)';
+        e.target.style.borderColor = 'rgba(253, 224, 71, 0.25)';
+        e.target.style.boxShadow = '0 0 8px rgba(253, 224, 71, 0.06)';
+        e.target.style.animationPlayState = 'running';
+      }}
+      />
       
-      {/* Floating squares with intense glow */}
       <div style={{
         position: 'absolute',
-        top: '50%',
-        left: '90%',
-        width: '80px',
-        height: '80px',
-        background: 'rgba(251, 191, 36, 0.2)',
-        border: '2px solid rgba(251, 191, 36, 0.8)',
+        bottom: '25%',
+        right: '20%',
+        width: '50px',
+        height: '50px',
+        border: '1px solid rgba(251, 191, 36, 0.35)',
+        borderRadius: '50%',
+        animation: 'pulse 8s ease-in-out infinite',
+        boxShadow: '0 0 10px rgba(251, 191, 36, 0.07)',
+        cursor: 'pointer',
+        transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+        pointerEvents: 'auto'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'scale(1.6) translateX(-30px) rotate(720deg)';
+        e.target.style.borderColor = 'rgba(251, 191, 36, 0.9)';
+        e.target.style.boxShadow = '0 0 35px rgba(251, 191, 36, 0.4)';
+        e.target.style.animationPlayState = 'paused';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'scale(1) translateX(0px) rotate(0deg)';
+        e.target.style.borderColor = 'rgba(251, 191, 36, 0.35)';
+        e.target.style.boxShadow = '0 0 10px rgba(251, 191, 36, 0.07)';
+        e.target.style.animationPlayState = 'running';
+      }}
+      />
+      
+      <div style={{
+        position: 'absolute',
+        top: '8%',
+        left: '35%',
+        width: '30px',
+        height: '30px',
+        border: '1px solid rgba(253, 224, 71, 0.2)',
+        borderRadius: '50%',
+        animation: 'drift 18s ease-in-out infinite',
+        boxShadow: '0 0 6px rgba(253, 224, 71, 0.05)',
+        cursor: 'pointer',
+        transition: 'all 0.5s ease',
+        pointerEvents: 'auto'
+      }}
+      onMouseEnter={(e) => {
+        e.target.style.transform = 'scale(1.8) translateY(40px) rotate(-180deg)';
+        e.target.style.borderColor = 'rgba(253, 224, 71, 0.8)';
+        e.target.style.boxShadow = '0 0 25px rgba(253, 224, 71, 0.3)';
+        e.target.style.animationPlayState = 'paused';
+      }}
+      onMouseLeave={(e) => {
+        e.target.style.transform = 'scale(1) translateY(0px) rotate(0deg)';
+        e.target.style.borderColor = 'rgba(253, 224, 71, 0.2)';
+        e.target.style.boxShadow = '0 0 6px rgba(253, 224, 71, 0.05)';
+        e.target.style.animationPlayState = 'running';
+      }}
+      />
+      
+      {/* More visible dots */}
+      <div style={{
+        position: 'absolute',
+        top: '15%',
+        left: '85%',
+        width: '4px',
+        height: '4px',
+        backgroundColor: 'rgba(253, 224, 71, 0.6)',
+        borderRadius: '50%',
+        boxShadow: '0 0 12px rgba(253, 224, 71, 0.4)',
+        animation: 'twinkle 3s ease-in-out infinite'
+      }} />
+      
+      <div style={{
+        position: 'absolute',
+        top: '70%',
+        left: '8%',
+        width: '3px',
+        height: '3px',
+        backgroundColor: 'rgba(251, 191, 36, 0.7)',
+        borderRadius: '50%',
+        boxShadow: '0 0 10px rgba(251, 191, 36, 0.3)',
+        animation: 'twinkle 2s ease-in-out infinite 1s'
+      }} />
+      
+      {/* Subtle gradient line */}
+      <div style={{
+        position: 'absolute',
+        top: '40%',
+        left: '-10%',
+        width: '300px',
+        height: '1px',
+        background: 'linear-gradient(90deg, transparent, rgba(253, 224, 71, 0.1) 50%, transparent)',
         transform: 'rotate(45deg)',
-        animation: 'floatRotate 8s ease-in-out infinite',
-        boxShadow: '0 0 50px rgba(251, 191, 36, 0.6)'
+        animation: 'fadeInOut 4s ease-in-out infinite'
       }} />
     </div>
   );
@@ -409,44 +424,44 @@ function LoginPage({ tolanding, onLogin, tosignup, onGoogleLogin, sellerKind }) 
     styleSheet.type = 'text/css';
     styleSheet.innerText = `
       @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-30px) rotate(180deg); }
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
       }
       @keyframes loadingPulse {
         0%, 80%, 100% { opacity: 0.4; }
         40% { opacity: 1; }
       }
       @keyframes spin {
-        from { transform: rotate(0deg) scale(1); }
-        50% { transform: rotate(180deg) scale(1.1); }
-        to { transform: rotate(360deg) scale(1); }
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
       }
-      @keyframes twinkle {
-        0%, 100% { opacity: 0.4; transform: scale(1); }
-        50% { opacity: 1; transform: scale(1.5); }
+      @keyframes spinReverse {
+        from { transform: rotate(360deg); }
+        to { transform: rotate(0deg); }
       }
-      @keyframes fadeInOut {
-        0%, 100% { opacity: 0; transform: scaleX(0) translateX(-50%); }
-        50% { opacity: 1; transform: scaleX(1) translateX(0%); }
+      @keyframes floatSpin {
+        0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+        25% { transform: translateY(-15px) rotate(90deg) scale(1.1); }
+        50% { transform: translateY(-10px) rotate(180deg) scale(0.95); }
+        75% { transform: translateY(-20px) rotate(270deg) scale(1.05); }
       }
       @keyframes pulse {
-        0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.4; }
-        50% { transform: scale(1.3) rotate(180deg); opacity: 0.8; }
-      }
-      @keyframes expand {
         0%, 100% { transform: scale(1); opacity: 0.3; }
-        50% { transform: scale(1.4); opacity: 0.7; }
+        50% { transform: scale(1.2); opacity: 0.6; }
       }
-      @keyframes lightningFlash {
-        0%, 90%, 100% { opacity: 0; }
-        5%, 15% { opacity: 1; }
-        10% { opacity: 0.5; }
+      @keyframes drift {
+        0%, 100% { transform: translateX(0px) translateY(0px) rotate(0deg); }
+        25% { transform: translateX(20px) translateY(-10px) rotate(45deg); }
+        50% { transform: translateX(10px) translateY(-25px) rotate(90deg); }
+        75% { transform: translateX(-15px) translateY(-15px) rotate(135deg); }
       }
-      @keyframes floatRotate {
-        0%, 100% { transform: translateY(0px) rotate(45deg) scale(1); }
-        25% { transform: translateY(-20px) rotate(135deg) scale(1.1); }
-        50% { transform: translateY(-10px) rotate(225deg) scale(0.9); }
-        75% { transform: translateY(-30px) rotate(315deg) scale(1.2); }
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.2; }
+        50% { opacity: 0.6; }
+      }
+      @keyframes fadeInOut {
+        0%, 100% { opacity: 0; }
+        50% { opacity: 0.3; }
       }
       .loading-dot:nth-child(1) { animation-delay: 0s; }
       .loading-dot:nth-child(2) { animation-delay: 0.2s; }

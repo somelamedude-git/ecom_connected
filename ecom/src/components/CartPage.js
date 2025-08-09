@@ -10,7 +10,8 @@ function CartPage() {
   const [cartitems, setcartitems] = useState([]);
   const [loading, setloading] = useState(true);
 
-  const navigate = useNavigate();;
+  const navigate = useNavigate();
+  
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -27,67 +28,113 @@ function CartPage() {
     loadData();
   }, []);
 
-  const updateQuantity = async (item_id, item_size, set_quantity) => {
+  const updateQuantity = async (item_id, item_size, new_quantity) => {
+    const item = cartitems.find(i => i.product._id === item_id && i.size === item_size);
+    const old_quantity = item.quantity;
+    
+    // Immediate UI update (optimistic)
+    if (new_quantity === 0) {
+      setcartitems(prev =>
+        prev.filter(i => !(i.product._id === item_id && i.size === item_size))
+      );
+    } else {
+      setcartitems(prev =>
+        prev.map(i =>
+          i.product._id === item_id && i.size === item_size
+            ? { ...i, quantity: new_quantity }
+            : i
+        )
+      );
+    }
+
     try {
-      const item = cartitems.find(i => i.product._id === item_id && i.size === item_size);
-      if (item.quantity < set_quantity) {
+      // API call in background
+      if (new_quantity === 0) {
+        await axios.delete(`http://localhost:3000/cart/deleteItem/${item_id}`, {
+          data: { size: item_size },
+          withCredentials: true
+        });
+      } else if (old_quantity < new_quantity) {
+        // Increment
         await axios.patch(`http://localhost:3000/cart/increment/${item_id}`,
           { size: item_size },
           { withCredentials: true }
         );
-      } else if (item.quantity > set_quantity && set_quantity !== 0) {
+      } else if (old_quantity > new_quantity) {
+        // Decrement
         await axios.patch(`http://localhost:3000/cart/decrement/${item_id}`, {
           size: item_size
         }, {
           withCredentials: true
         });
-      } else if (set_quantity === 0) {
-        removeItem(item_id, item_size);
-        return; // Exit early since removeItem handles state update
       }
-
-      setcartitems(prev =>
-        prev.map(i =>
-          i.product._id === item_id && i.size === item_size
-            ? { ...i, quantity: set_quantity }
-            : i
-        )
-      );
     } catch (error) {
-      console.log(error);
+      console.log('API Error:', error);
+      
+      // Revert optimistic update on error
+      if (new_quantity === 0) {
+        // Restore the removed item
+        setcartitems(prev => [...prev, item]);
+      } else {
+        // Revert quantity change
+        setcartitems(prev =>
+          prev.map(i =>
+            i.product._id === item_id && i.size === item_size
+              ? { ...i, quantity: old_quantity }
+              : i
+          )
+        );
+      }
+      
+      // Show error message to user
+      alert('Failed to update cart. Please try again.');
     }
   };
 
   const removeItem = async (item_id, item_size) => {
-    try {
-      // Update UI immediately (optimistic update)
-      setcartitems(prev =>
-        prev.filter(i => !(i.product._id === item_id && i.size === item_size))
-      );
+    const item = cartitems.find(i => i.product._id === item_id && i.size === item_size);
+    
+    // Immediate UI update (optimistic)
+    setcartitems(prev =>
+      prev.filter(i => !(i.product._id === item_id && i.size === item_size))
+    );
 
-      // Make API call
+    try {
+      // API call in background
       await axios.delete(`http://localhost:3000/cart/deleteItem/${item_id}`, {
         data: { size: item_size },
         withCredentials: true
       });
     } catch (err) {
-      console.log(err);
-      // If API call fails, you might want to revert the optimistic update
-      // For now, we'll just log the error
-      // You could implement error handling to restore the item if needed
+      console.log('Remove item error:', err);
+      
+      // Revert optimistic update on error
+      setcartitems(prev => [...prev, item]);
+      alert('Failed to remove item. Please try again.');
     }
   };
 
-const subtotal = !loading
-  ? (cartitems || []).reduce(
-      (sum, i) => sum + i.product.price * i.quantity,
-      0
-    )
-  : 0;
+  // Optimized increment/decrement functions for better UX
+  const incrementQuantity = (item_id, item_size) => {
+    const item = cartitems.find(i => i.product._id === item_id && i.size === item_size);
+    updateQuantity(item_id, item_size, item.quantity + 1);
+  };
+
+  const decrementQuantity = (item_id, item_size) => {
+    const item = cartitems.find(i => i.product._id === item_id && i.size === item_size);
+    const new_quantity = Math.max(0, item.quantity - 1);
+    updateQuantity(item_id, item_size, new_quantity);
+  };
+
+  const subtotal = !loading
+    ? (cartitems || []).reduce(
+        (sum, i) => sum + i.product.price * i.quantity,
+        0
+      )
+    : 0;
 
   return (
     <div className="cart-container">
-  
       <div className="cart-main">
         {loading ? (
           <div className="loading">Loading...</div>
@@ -109,35 +156,47 @@ const subtotal = !loading
                 ) : (
                   cartitems.map(item => (
                     <Link key={`${item.product._id}-${item.size}`} className='cart-item-link'>
-                    <div className="cart-item">
-                      <div className="itemcontent">
-                        <img src={item.product.image} alt={item.product.name} className="itemimg" />
-                        <div className="iteminfo">
-                          <h3>{item.product.name}</h3>
-                          <div>Size: {item.size} • Color: {item.product.color}</div>
-                          <div className="itemprice">${item.product.price.toFixed(2)}</div>
-                        </div>
-                        <div className="itemactions">
-                          <div className="qtycontrol">
-                            <button onClick={() => updateQuantity(item.product._id, item.size, item.quantity - 1)}>
-                              <Minus size={16} />
-                            </button>
-                            <span>{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.product._id, item.size, item.quantity + 1)}>
-                              <Plus size={16} />
+                      <div className="cart-item">
+                        <div className="itemcontent">
+                          <img src={item.product.image} alt={item.product.name} className="itemimg" />
+                          <div className="iteminfo">
+                            <h3>{item.product.name}</h3>
+                            <div>Size: {item.size} • Color: {item.product.color}</div>
+                            <div className="itemprice">${item.product.price.toFixed(2)}</div>
+                          </div>
+                          <div className="itemactions">
+                            <div className="qtycontrol">
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prevent Link navigation
+                                  decrementQuantity(item.product._id, item.size);
+                                }}
+                              >
+                                <Minus size={16} />
+                              </button>
+                              <span>{item.quantity}</span>
+                              <button 
+                                onClick={(e) => {
+                                  e.preventDefault(); // Prevent Link navigation
+                                  incrementQuantity(item.product._id, item.size);
+                                }}
+                              >
+                                <Plus size={16} />
+                              </button>
+                            </div>
+                            <button
+                              className="removeb"
+                              onClick={(e) => {
+                                e.preventDefault(); // Prevent Link navigation
+                                removeItem(item.product._id, item.size);
+                              }}
+                            >
+                              <Trash2 size={20} />
                             </button>
                           </div>
-                          <button
-                            className="removeb"
-                            onClick={() => removeItem(item.product._id, item.size)}
-                          >
-                            <Trash2 size={20} />
-                          </button>
                         </div>
                       </div>
-                    </div>
                     </Link>
-                    
                   ))
                 )}
               </div>

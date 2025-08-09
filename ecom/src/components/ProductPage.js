@@ -26,9 +26,7 @@ const ProductsPage = () => {
   const [selectedSize, setSelectedSize] = useState('');
 
   // Get user token from localStorage or context
-  const getUserToken = () => {
-    return localStorage.getItem('authToken') || localStorage.getItem('token');
-  };
+ 
 
   const fetchProducts = async (page = 0, currentSortBy = sortBy, currentLimit = limit) => {
     setLoading(true);
@@ -61,8 +59,6 @@ const ProductsPage = () => {
 
   // Fetch user's wishlist on component mount
   const fetchWishlist = async () => {
-    const token = getUserToken();
-    if (!token) return;
 
     try {
       const response = await axios.get('http://localhost:3000/wishlist/getItems', {
@@ -76,6 +72,18 @@ const ProductsPage = () => {
     } catch (error) {
       console.error('Error fetching wishlist:', error);
     }
+  };
+
+  // Navigate to product detail page
+  const handleProductClick = (productId) => {
+    navigate(`/product/${productId}`);
+  };
+
+  // Handle quick view (optional - could open a modal instead of navigating)
+  const handleQuickView = (e, product) => {
+    e.stopPropagation(); // Prevent product click navigation
+    // You can implement a quick view modal here or navigate to product page
+    handleProductClick(product._id);
   };
 
   // Open size selection popup
@@ -132,7 +140,8 @@ const ProductsPage = () => {
   };
 
   // Handle add to cart with size selection
-  const handleAddToCart = (product) => {
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation(); // Prevent product click navigation
     if (product.stock && Object.keys(product.stock).length > 0) {
       // Product has sizes, show size selection popup
       openSizeSelection(product);
@@ -143,12 +152,8 @@ const ProductsPage = () => {
   };
 
   // Toggle wishlist function
-  const toggleWishlist = async (productId) => {
-    const token = getUserToken();
-    if (!token) {
-      alert('Please login to add items to wishlist');
-      return;
-    }
+  const toggleWishlist = async (e, productId) => {
+    e.stopPropagation(); // Prevent product click navigatioon
 
     const isInWishlist = wishlist.has(productId);
     setWishlistLoading(prev => new Set(prev).add(productId));
@@ -157,9 +162,7 @@ const ProductsPage = () => {
       if (isInWishlist) {
         // Remove from wishlist
         const response = await axios.delete(`http://localhost:3000/wishlist/remove/${productId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+         withCredentials: true
         });
 
         if (response.data.success) {
@@ -173,14 +176,13 @@ const ProductsPage = () => {
         }
       } else {
         // Add to wishlist
-        const response = await axios.post('http://localhost:3000/wishlist/add', {
-          productId: productId
-        }, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
+        const response = await axios.post(
+  `http://localhost:3000/wishlist/add/${productId}`, 
+  {}, 
+  {
+    withCredentials: true // cookies included
+  }
+);
 
         if (response.data.success) {
           setWishlist(prev => new Set(prev).add(productId));
@@ -356,7 +358,10 @@ const ProductsPage = () => {
     const isCartLoading = cartLoading.has(product._id);
     
     return (
-      <div className={`product-card ${viewMode}`}>
+      <div 
+        className={`product-card ${viewMode}`}
+        onClick={() => handleProductClick(product._id)}
+      >
         <div className="product-image-container">
           <img 
             src={product.productImages} 
@@ -366,7 +371,7 @@ const ProductsPage = () => {
           <div className="product-overlay">
             <button 
               className={`wishlist-btn ${isInWishlist ? 'active' : ''} ${isWishlistLoading ? 'loading' : ''}`}
-              onClick={() => toggleWishlist(product._id)}
+              onClick={(e) => toggleWishlist(e, product._id)}
               disabled={isWishlistLoading}
               title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
             >
@@ -376,7 +381,11 @@ const ProductsPage = () => {
                 className={isWishlistLoading ? 'spin' : ''}
               />
             </button>
-            <button className="quick-view-btn" title="Quick view">
+            <button 
+              className="quick-view-btn" 
+              title="Quick view"
+              onClick={(e) => handleQuickView(e, product)}
+            >
               <Eye size={18} />
             </button>
           </div>
@@ -431,7 +440,7 @@ const ProductsPage = () => {
             <button 
               className={`add-to-cart-btn ${isCartLoading ? 'loading' : ''}`}
               disabled={stockCount === 0 || isCartLoading}
-              onClick={() => handleAddToCart(product)}
+              onClick={(e) => handleAddToCart(e, product)}
             >
               <ShoppingCart size={16} className={isCartLoading ? 'spin' : ''} />
               {isCartLoading ? 'Adding...' : stockCount === 0 ? 'Out of Stock' : 'Add to Cart'}
