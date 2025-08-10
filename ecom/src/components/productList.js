@@ -361,7 +361,7 @@ const SellerProductsPage = () => {
               <>
                 {products.map((product) => (
                   <div key={product._id} className="cart-item">
-                    <div className="itemcontent">
+                    <div className="itemcontent" onClick={()=>nav(`/seller/analysis/product/${product._id}`)}>
                       <img
                         src={product.productImages || '/api/placeholder/80/80'}
                         alt={product.name}

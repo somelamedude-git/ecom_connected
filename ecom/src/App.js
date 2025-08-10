@@ -18,6 +18,7 @@ import AddProductForm from './components/AddProduct';
 import SellerProfile from './components/sellerProfile';
 import Loading from './components/loading';
 import ProductDescriptionPage from './components/SingleProduct';
+import ProductAnalytics from './components/productAnalytics';
 
 
 function App() {
@@ -149,9 +150,15 @@ function App() {
           }
         />
 
-        <Route path='/product/:productId' element={
+        <Route path='/product/:product_id' element={
           <Layout>
             <ProductDescriptionPage/>
+          </Layout>
+        }></Route>
+
+        <Route path='/seller/analysis/product/:product_id' element={
+          <Layout>
+            <ProductAnalytics/>
           </Layout>
         }></Route>
       </Routes>
