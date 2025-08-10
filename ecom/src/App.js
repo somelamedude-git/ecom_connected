@@ -18,6 +18,7 @@ import AddProductForm from './components/AddProduct';
 import SellerProfile from './components/sellerProfile';
 import Loading from './components/loading';
 import ProductDescriptionPage from './components/SingleProduct';
+import AdminPortal from './components/Admin';
 
 function App() {
   const location = useLocation();
@@ -68,6 +69,7 @@ function App() {
         <Route path="/seller/add-product" element={<Layout><AddProductForm /></Layout>} />
         <Route path="/seller/profile" element={<Layout><SellerProfile /></Layout>} />
         <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>}></Route>
+        <Route path='/admin/portal' element={<Layout><AdminPortal/></Layout>}></Route>
       </Routes>
     </>
   );
