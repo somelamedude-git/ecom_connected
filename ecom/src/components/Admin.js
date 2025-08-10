@@ -13,7 +13,7 @@ const AdminPortal = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
 
-  const API_BASE_URL = 'http://localhost:3000';
+  const API_BASE_URL = 'http://localhost:5000';
   
   axios.defaults.withCredentials = true;
 
@@ -60,7 +60,7 @@ const AdminPortal = () => {
       if (status === 'banned') params.status = 'ban';
       else if (status === 'active') params.status = 'unban';
 
-      const response = await axios.get(`${API_BASE_URL}/admin`, { params });
+      const response = await axios.get(`${API_BASE_URL}/admin/listusers`, { params });
       
       if (response.data.status) {
         const transformedUsers = response.data.users.map(transformUserData);
