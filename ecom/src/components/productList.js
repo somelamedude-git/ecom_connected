@@ -103,7 +103,6 @@ const SellerProductsPage = () => {
   };
 
   const handleDeleteProduct = async (productId, productName) => {
-    // Show confirmation dialog
     const confirmDelete = window.confirm(
       `Are you sure you want to delete "${productName}"?\n\nThis action cannot be undone.`
     );
@@ -574,7 +573,7 @@ const SellerProductsPage = () => {
                     color: '#fff',
                     fontSize: '0.875rem',
                     cursor: 'pointer'
-                  }}>
+                  }} onClick={()=>nav('/seller/analytics')}>
                     Analytics
                   </button>
                 </div>

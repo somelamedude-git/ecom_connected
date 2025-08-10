@@ -148,6 +148,12 @@ function App() {
             </Layout>
           }
         />
+
+        <Route path='/product/:productId' element={
+          <Layout>
+            <ProductDescriptionPage/>
+          </Layout>
+        }></Route>
       </Routes>
     </>
   );
