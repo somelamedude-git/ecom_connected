@@ -22,36 +22,24 @@ import ProductDescriptionPage from './components/SingleProduct';
 function App() {
   const location = useLocation();
   const [showLoader, setShowLoader] = useState(false);
-  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     let timerStart;
 
-    // Delay 
+    // Show loader only if navigation is slow 
     timerStart = setTimeout(() => {
       setShowLoader(true);
-      setTimeout(() => setVisible(true), 50); // fade in
     }, 500);
 
     return () => {
       clearTimeout(timerStart);
-      setVisible(false);
-      setTimeout(() => setShowLoader(false), 300); // matches fade-out duration
+      setShowLoader(false); // Let loading handle its own fade 
     };
   }, [location]);
 
   return (
     <>
-      {showLoader && (
-        <div
-          style={{
-            opacity: visible ? 1 : 0,
-            transition: 'opacity 0.3s ease-in-out',
-          }}
-        >
-          <Loading />
-        </div>
-      )}
+      {showLoader && <Loading />}
 
       <Routes>
         <Route path="/" element={<Layout><LandingPage /></Layout>} />
@@ -67,10 +55,11 @@ function App() {
         <Route path="/seller/analytics" element={<Layout><SalesHeatmap /></Layout>} />
         <Route path="/seller/add-product" element={<Layout><AddProductForm /></Layout>} />
         <Route path="/seller/profile" element={<Layout><SellerProfile /></Layout>} />
-        <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>}></Route>
+        <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>} />
       </Routes>
     </>
   );
 }
 
 export default App;
+
