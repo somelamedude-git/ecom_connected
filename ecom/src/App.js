@@ -19,47 +19,138 @@ import SellerProfile from './components/sellerProfile';
 import Loading from './components/loading';
 import ProductDescriptionPage from './components/SingleProduct';
 
+
 function App() {
   const location = useLocation();
   const [showLoader, setShowLoader] = useState(false);
+  const [timerId, setTimerId] = useState(null);
 
   useEffect(() => {
-    let timerStart;
+    if (timerId) clearTimeout(timerId); //new thing here see if it works please?
+    setShowLoader(false);
 
-    // Show loader only if navigation is slow 
-    timerStart = setTimeout(() => {
+    const id = setTimeout(() => {
       setShowLoader(true);
-    }, 500);
+    }, 500);//zyada delay hua
 
+    setTimerId(id);
     return () => {
-      clearTimeout(timerStart);
-      setShowLoader(false); // Let loading handle its own fade 
+      clearTimeout(id); // stop timer when navigation completes
     };
   }, [location]);
-
+  // fade out starts
+  useEffect(() => {
+    if (showLoader) {
+      const hideTimer = setTimeout(() => {
+        setShowLoader(false);
+      }, 800); // Fade out duration + small buffer
+      return () => clearTimeout(hideTimer);
+    }
+  }, [location.key]);
   return (
     <>
-      {showLoader && <Loading />}
-
+      <Loading isVisible={showLoader} />
       <Routes>
-        <Route path="/" element={<Layout><LandingPage /></Layout>} />
-        <Route path="/login" element={<Layout><Login /></Layout>} />
-        <Route path="/signup" element={<Layout><RegistrationPage /></Layout>} />
-        <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
-        <Route path="/cart" element={<Layout><CartPage /></Layout>} />
-        <Route path="/about" element={<Layout><AboutPage /></Layout>} />
-        <Route path="/products" element={<Layout><ProductsPage /></Layout>} />
-        <Route path="/wishlist" element={<Layout><WishlistPage /></Layout>} />
-        <Route path="/seller/products" element={<Layout><SellerProductsPage /></Layout>} />
-        <Route path="/seller/orders" element={<Layout><SellerOrdersPage /></Layout>} />
-        <Route path="/seller/analytics" element={<Layout><SalesHeatmap /></Layout>} />
-        <Route path="/seller/add-product" element={<Layout><AddProductForm /></Layout>} />
-        <Route path="/seller/profile" element={<Layout><SellerProfile /></Layout>} />
-        <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>} />
+        <Route
+          path="/"
+          element={
+            <Layout>
+              <LandingPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <Layout>
+              <Login />
+            </Layout>
+          }
+        />
+        <Route path="/signup" element={<RegistrationPage />} />
+        <Route
+          path="profile"
+          element={
+            <Layout>
+              <ProfilePage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <Layout>
+              <CartPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/about"
+          element={
+            <Layout>
+              <AboutPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <Layout>
+              <ProductsPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/wishlist"
+          element={
+            <Layout>
+              <WishlistPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/seller/products"
+          element={
+            <Layout>
+              <SellerProductsPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/seller/orders"
+          element={
+            <Layout>
+              <SellerOrdersPage />
+            </Layout>
+          }
+        />
+        <Route
+          path="/seller/analytics"
+          element={
+            <Layout>
+              <SalesHeatmap />
+            </Layout>
+          }
+        />
+        <Route
+          path="/seller/add-product"
+          element={
+            <Layout>
+              <AddProductForm />
+            </Layout>
+          }
+        />
+        <Route
+          path="/seller/profile"
+          element={
+            <Layout>
+              <SellerProfile />
+            </Layout>
+          }
+        />
       </Routes>
     </>
   );
 }
 
 export default App;
-
