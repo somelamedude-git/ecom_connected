@@ -1,13 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { TrendingUp, Package, Users, DollarSign, Plus, BarChart3, ShoppingBag, Eye } from 'lucide-react';
 import axios from 'axios';
 import '../styles/LandingPage.css';
 
 function LandingPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [userType, setUserType] = useState('Buyer');
   const [loggedIn, setLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [sellerStats, setSellerStats] = useState({
     totalProducts: 0,
     totalSales: 0,
@@ -18,48 +20,137 @@ function LandingPage() {
     recentOrders: []
   });
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await axios.get('http://localhost:3000/user/verifyLogin', {
-          withCredentials: true
-        });
+  // Memoize the fetch function to prevent unnecessary re-renders
+  const fetchUserData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get('http://localhost:3000/user/verifyLogin', {
+        withCredentials: true
+      });
+      
+      if (res.data.isLoggedIn) {
+        setLoggedIn(true);
+        setUserType(res.data.userType || 'Buyer');
         
-        if (res.data.isLoggedIn) {
-          setLoggedIn(true);
-          setUserType(res.data.userType || 'Buyer');
-          
-          // Only fetch seller stats if user is a seller
-          if (res.data.userType === 'Seller') {
-            try {
-              const statsRes = await axios.get('http://localhost:3000/seller/stats', {
-                withCredentials: true
-              });
-              setSellerStats(statsRes.data);
-            } catch (statsError) {
-              console.error('Error fetching seller stats:', statsError);
-              // Set default values if stats fetch fails
-              setSellerStats({
-                totalProducts: 0,
-                totalSales: 0,
-                totalOrders: 0,
-                pendingOrders: 0,
-                monthlyRevenue: 0,
-                storeViews: 0,
-                recentOrders: []
-              });
-            }
+        // Only fetch seller stats if user is a seller
+        if (res.data.userType === 'Seller') {
+          try {
+            const statsRes = await axios.get('http://localhost:3000/seller/stats', {
+              withCredentials: true
+            });
+            setSellerStats(statsRes.data);
+          } catch (statsError) {
+            console.error('Error fetching seller stats:', statsError);
+            // Set default values if stats fetch fails
+            setSellerStats({
+              totalProducts: 0,
+              totalSales: 0,
+              totalOrders: 0,
+              pendingOrders: 0,
+              monthlyRevenue: 0,
+              storeViews: 0,
+              recentOrders: []
+            });
           }
+        } else {
+          // Reset seller stats for buyers
+          setSellerStats({
+            totalProducts: 0,
+            totalSales: 0,
+            totalOrders: 0,
+            pendingOrders: 0,
+            monthlyRevenue: 0,
+            storeViews: 0,
+            recentOrders: []
+          });
         }
-      } catch (error) {
-        console.error('Error fetching user data:', error);
+      } else {
         setLoggedIn(false);
         setUserType('Buyer');
+        setSellerStats({
+          totalProducts: 0,
+          totalSales: 0,
+          totalOrders: 0,
+          pendingOrders: 0,
+          monthlyRevenue: 0,
+          storeViews: 0,
+          recentOrders: []
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+      setLoggedIn(false);
+      setUserType('Buyer');
+      setSellerStats({
+        totalProducts: 0,
+        totalSales: 0,
+        totalOrders: 0,
+        pendingOrders: 0,
+        monthlyRevenue: 0,
+        storeViews: 0,
+        recentOrders: []
+      });
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Listen for route changes and check auth status
+  useEffect(() => {
+    fetchUserData();
+  }, [location.pathname, fetchUserData]);
+
+  // Listen for window focus events to update when user returns to the tab
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchUserData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [fetchUserData]);
+
+  // Listen for custom events (useful for immediate updates after login/logout)
+  useEffect(() => {
+    const handleAuthChange = () => {
+      fetchUserData();
+    };
+
+    const handleStatsUpdate = () => {
+      if (loggedIn && userType === 'Seller') {
+        fetchUserData();
       }
     };
 
-    fetchUserData();
-  }, []);
+    window.addEventListener('authStatusChanged', handleAuthChange);
+    window.addEventListener('sellerStatsUpdated', handleStatsUpdate);
+    
+    return () => {
+      window.removeEventListener('authStatusChanged', handleAuthChange);
+      window.removeEventListener('sellerStatsUpdated', handleStatsUpdate);
+    };
+  }, [fetchUserData, loggedIn, userType]);
+
+  // Show loading state while fetching data
+  if (loading) {
+    return (
+      <div className="landing-container" style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #111827 0%, #1f2937 50%, #374151 100%)'
+      }}>
+        <div style={{
+          color: '#f9fafb',
+          fontSize: '18px',
+          textAlign: 'center'
+        }}>
+          Loading...
+        </div>
+      </div>
+    );
+  }
 
   // Buyer Landing Page
   const BuyerLandingPage = () => (

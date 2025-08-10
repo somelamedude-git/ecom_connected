@@ -24,9 +24,7 @@ const ProductsPage = () => {
   const [showSizePopup, setShowSizePopup] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedSize, setSelectedSize] = useState('');
-
-  // Get user token from localStorage or context
- 
+  const [popupAction, setPopupAction] = useState(''); // 'cart' or 'wishlist'
 
   const fetchProducts = async (page = 0, currentSortBy = sortBy, currentLimit = limit) => {
     setLoading(true);
@@ -59,7 +57,6 @@ const ProductsPage = () => {
 
   // Fetch user's wishlist on component mount
   const fetchWishlist = async () => {
-
     try {
       const response = await axios.get('http://localhost:3000/wishlist/getItems', {
         withCredentials: true
@@ -86,10 +83,11 @@ const ProductsPage = () => {
     handleProductClick(product._id);
   };
 
-  // Open size selection popup
-  const openSizeSelection = (product) => {
+  // Open size selection popup for cart or wishlist
+  const openSizeSelection = (product, action) => {
     setSelectedProduct(product);
     setSelectedSize('');
+    setPopupAction(action);
     setShowSizePopup(true);
   };
 
@@ -98,11 +96,11 @@ const ProductsPage = () => {
     setShowSizePopup(false);
     setSelectedProduct(null);
     setSelectedSize('');
+    setPopupAction('');
   };
 
   // Add to cart function with size
   const addToCart = async (productId, size) => {
-
     if (!size) {
       alert('Please select a size');
       return;
@@ -139,65 +137,36 @@ const ProductsPage = () => {
     }
   };
 
-  // Handle add to cart with size selection
-  const handleAddToCart = (e, product) => {
-    e.stopPropagation(); // Prevent product click navigation
-    if (product.stock && Object.keys(product.stock).length > 0) {
-      // Product has sizes, show size selection popup
-      openSizeSelection(product);
-    } else {
-      // Product has no sizes, add directly
-      addToCart(product._id, null);
-    }
-  };
-
-  // Toggle wishlist function
-  const toggleWishlist = async (e, productId) => {
-    e.stopPropagation(); // Prevent product click navigatioon
-
-    const isInWishlist = wishlist.has(productId);
+  // Add to wishlist function with size
+  const addToWishlist = async (productId, size) => {
     setWishlistLoading(prev => new Set(prev).add(productId));
 
     try {
-      if (isInWishlist) {
-        // Remove from wishlist
-        const response = await axios.delete(`http://localhost:3000/wishlist/remove/${productId}`, {
-         withCredentials: true
-        });
-
-        if (response.data.success) {
-          setWishlist(prev => {
-            const newWishlist = new Set(prev);
-            newWishlist.delete(productId);
-            return newWishlist;
-          });
-        } else {
-          alert(response.data.message || 'Failed to remove from wishlist');
+      const response = await axios.post(
+        `http://localhost:3000/wishlist/add/${productId}`, 
+        {
+          size: size
+        }, 
+        {
+          withCredentials: true
         }
+      );
+
+      if (response.data.success) {
+        setWishlist(prev => new Set(prev).add(productId));
+        alert('Product added to wishlist successfully!');
+        closeSizeSelection();
       } else {
-        // Add to wishlist
-        const response = await axios.post(
-  `http://localhost:3000/wishlist/add/${productId}`, 
-  {}, 
-  {
-    withCredentials: true // cookies included
-  }
-);
-
-        if (response.data.success) {
-          setWishlist(prev => new Set(prev).add(productId));
-        } else {
-          alert(response.data.message || 'Failed to add to wishlist');
-        }
+        alert(response.data.message || 'Failed to add to wishlist');
       }
     } catch (error) {
-      console.error('Error toggling wishlist:', error);
+      console.error('Error adding to wishlist:', error);
       if (error.response?.status === 401) {
         alert('Please login to manage your wishlist');
       } else if (error.response?.data?.message) {
         alert(error.response.data.message);
       } else {
-        alert('Failed to update wishlist. Please try again.');
+        alert('Failed to add to wishlist. Please try again.');
       }
     } finally {
       setWishlistLoading(prev => {
@@ -205,6 +174,88 @@ const ProductsPage = () => {
         newSet.delete(productId);
         return newSet;
       });
+    }
+  };
+
+  // Remove from wishlist function
+  const removeFromWishlist = async (productId) => {
+    setWishlistLoading(prev => new Set(prev).add(productId));
+
+    try {
+      const response = await axios.delete(`http://localhost:3000/wishlist/remove/${productId}`, {
+        withCredentials: true
+      });
+
+      if (response.data.success) {
+        setWishlist(prev => {
+          const newWishlist = new Set(prev);
+          newWishlist.delete(productId);
+          return newWishlist;
+        });
+        alert('Product removed from wishlist successfully!');
+      } else {
+        alert(response.data.message || 'Failed to remove from wishlist');
+      }
+    } catch (error) {
+      console.error('Error removing from wishlist:', error);
+      if (error.response?.data?.message) {
+        alert(error.response.data.message);
+      } else {
+        alert('Failed to remove from wishlist. Please try again.');
+      }
+    } finally {
+      setWishlistLoading(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(productId);
+        return newSet;
+      });
+    }
+  };
+
+  // Handle add to cart with size selection
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation(); // Prevent product click navigation
+    if (product.stock && Object.keys(product.stock).length > 0) {
+      // Product has sizes, show size selection popup
+      openSizeSelection(product, 'cart');
+    } else {
+      // Product has no sizes, add directly
+      addToCart(product._id, null);
+    }
+  };
+
+  // Handle wishlist toggle with size selection
+  const handleWishlistToggle = (e, product) => {
+    e.stopPropagation(); // Prevent product click navigation
+
+    const isInWishlist = wishlist.has(product._id);
+
+    if (isInWishlist) {
+      // Remove from wishlist - no size needed for removal
+      removeFromWishlist(product._id);
+    } else {
+      // Add to wishlist
+      if (product.stock && Object.keys(product.stock).length > 0) {
+        // Product has sizes, show size selection popup
+        openSizeSelection(product, 'wishlist');
+      } else {
+        // Product has no sizes, add directly
+        addToWishlist(product._id, null);
+      }
+    }
+  };
+
+  // Handle size selection confirmation
+  const handleSizeSelectionConfirm = () => {
+    if (!selectedProduct || !selectedSize) {
+      alert('Please select a size');
+      return;
+    }
+
+    if (popupAction === 'cart') {
+      addToCart(selectedProduct._id, selectedSize);
+    } else if (popupAction === 'wishlist') {
+      addToWishlist(selectedProduct._id, selectedSize);
     }
   };
 
@@ -290,7 +341,9 @@ const ProductsPage = () => {
     if (!showSizePopup || !selectedProduct) return null;
 
     const availableSizes = selectedProduct.stock ? Object.keys(selectedProduct.stock).filter(size => selectedProduct.stock[size] > 0) : [];
-    const isAddingToCart = cartLoading.has(selectedProduct._id);
+    const isLoading = popupAction === 'cart' ? cartLoading.has(selectedProduct._id) : wishlistLoading.has(selectedProduct._id);
+    const actionText = popupAction === 'cart' ? 'Add to Cart' : 'Add to Wishlist';
+    const loadingText = popupAction === 'cart' ? 'Adding...' : 'Adding...';
 
     return (
       <div className="size-popup-overlay" onClick={closeSizeSelection}>
@@ -308,6 +361,9 @@ const ProductsPage = () => {
               <div>
                 <h4>{selectedProduct.name}</h4>
                 <p className="product-price">${selectedProduct.price}</p>
+                <p className="popup-action-label">
+                  {popupAction === 'cart' ? 'Adding to Cart' : 'Adding to Wishlist'}
+                </p>
               </div>
             </div>
 
@@ -337,12 +393,12 @@ const ProductsPage = () => {
               Cancel
             </button>
             <button 
-              className={`confirm-add-btn ${isAddingToCart ? 'loading' : ''}`}
-              onClick={() => addToCart(selectedProduct._id, selectedSize)}
-              disabled={!selectedSize || isAddingToCart || availableSizes.length === 0}
+              className={`confirm-add-btn ${isLoading ? 'loading' : ''}`}
+              onClick={handleSizeSelectionConfirm}
+              disabled={!selectedSize || isLoading || availableSizes.length === 0}
             >
-              <ShoppingCart size={16} className={isAddingToCart ? 'spin' : ''} />
-              {isAddingToCart ? 'Adding...' : 'Add to Cart'}
+              {popupAction === 'cart' ? <ShoppingCart size={16} className={isLoading ? 'spin' : ''} /> : <Heart size={16} className={isLoading ? 'spin' : ''} />}
+              {isLoading ? loadingText : actionText}
             </button>
           </div>
         </div>
@@ -371,7 +427,7 @@ const ProductsPage = () => {
           <div className="product-overlay">
             <button 
               className={`wishlist-btn ${isInWishlist ? 'active' : ''} ${isWishlistLoading ? 'loading' : ''}`}
-              onClick={(e) => toggleWishlist(e, product._id)}
+              onClick={(e) => handleWishlistToggle(e, product)}
               disabled={isWishlistLoading}
               title={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
             >
@@ -1327,7 +1383,14 @@ const ProductsPage = () => {
           font-size: 1.125rem;
           font-weight: 700;
           color: #fbbf24;
+          margin: 0 0 0.25rem;
+        }
+
+        .popup-action-label {
+          font-size: 0.875rem;
+          color: #9ca3af;
           margin: 0;
+          font-style: italic;
         }
 
         .size-options h5 {

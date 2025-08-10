@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { 
   Search, User, ShoppingBag, Menu, Heart, 
@@ -23,48 +23,95 @@ function Header({ menumove }) {
     pendingOrders: 0
   });
 
-  useEffect(() => {
-    const fetchData = async() => {
-      try {
-        const res_login_status = await axios.get('http://localhost:3000/user/verifyLogin', {
-          withCredentials: true
-        });
+  // Memoize the fetch function to prevent unnecessary re-renders
+  const fetchData = useCallback(async () => {
+    try {
+      const res_login_status = await axios.get('http://localhost:3000/user/verifyLogin', {
+        withCredentials: true
+      });
+      
+      if (res_login_status.data.isLoggedIn) {
+        setLoggedin(true);
+        setUserType(res_login_status.data.userType || 'Buyer'); 
         
-        if (res_login_status.data.isLoggedIn) {
-          setLoggedin(true);
-          setUserType(res_login_status.data.userType || 'Buyer'); 
-          
-          // Only fetch cart/wishlist data for buyers
-          if (res_login_status.data.userType === 'Buyer') {
-            const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
-              withCredentials: true
-            });
-            setWishlistCount(res_CWL.data.wish_length);
-            setCartCount(res_CWL.data.cart_length);
-          } else if (res_login_status.data.userType === 'Seller') {
-            // Only fetch seller stats for sellers
-            const res_seller_stats = await axios.get('http://localhost:3000/seller/stats', {
-              withCredentials: true
-            });
-            setSellerStats(res_seller_stats.data);
-          }
-        } else {
-          setLoggedin(false);
+        // Only fetch cart/wishlist data for buyers
+        if (res_login_status.data.userType === 'Buyer') {
+          const res_CWL = await axios.get('http://localhost:3000/user/getCWL', {
+            withCredentials: true
+          });
+          setWishlistCount(res_CWL.data.wish_length);
+          setCartCount(res_CWL.data.cart_length);
+        } else if (res_login_status.data.userType === 'Seller') {
+          // Only fetch seller stats for sellers
+          const res_seller_stats = await axios.get('http://localhost:3000/seller/stats', {
+            withCredentials: true
+          });
+          setSellerStats(res_seller_stats.data);
         }
-      } catch(error) {
-        console.log(error);
+      } else {
         setLoggedin(false);
+        setUserType('Buyer');
         setCartCount(0);
         setWishlistCount(0);
+        setSellerStats({
+          totalProducts: 0,
+          totalOrders: 0,
+          pendingOrders: 0
+        });
       }
-    };
-
-    fetchData();
+    } catch(error) {
+      console.log(error);
+      setLoggedin(false);
+      setUserType('Buyer');
+      setCartCount(0);
+      setWishlistCount(0);
+      setSellerStats({
+        totalProducts: 0,
+        totalOrders: 0,
+        pendingOrders: 0
+      });
+    }
   }, []);
 
+  // Listen for route changes and check auth status
+  useEffect(() => {
+    fetchData();
+  }, [location.pathname, fetchData]); // Re-run when route changes
+
+  // Also listen for focus events to update when user returns to the tab
+  useEffect(() => {
+    const handleFocus = () => {
+      fetchData();
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [fetchData]);
+
+  // Listen for custom events (useful for immediate updates after login/logout)
+  useEffect(() => {
+    const handleAuthChange = () => {
+      fetchData();
+    };
+
+    window.addEventListener('authStatusChanged', handleAuthChange);
+    return () => window.removeEventListener('authStatusChanged', handleAuthChange);
+  }, [fetchData]);
+
+  // Updated currentpath logic to handle both buyer and seller routes
   const currentpath = useMemo(() => {
-    const path = location.pathname === '/' ? 'home' : location.pathname.slice(1);
-    return path || 'home';
+    const path = location.pathname;
+    
+    if (path === '/') return 'home';
+    
+    // Handle seller routes
+    if (path.startsWith('/seller/')) {
+      const sellerPath = path.replace('/seller/', '');
+      return sellerPath || 'dashboard';
+    }
+    
+    // Handle buyer routes
+    return path.slice(1) || 'home';
   }, [location.pathname]);
 
   const safenav = (path) => {
@@ -77,7 +124,21 @@ function Header({ menumove }) {
     }
   };
 
-  const activated = (page) => currentpath === page;
+  // Updated activated function to handle both buyer and seller routes
+  const activated = (page) => {
+    if (userType === 'Seller') {
+      // For sellers, check if current path matches the seller route
+      if (page === 'dashboard') return currentpath === 'dashboard' || currentpath === 'home';
+      if (page === 'my-products') return currentpath === 'my-products';
+      if (page === 'orders') return currentpath === 'orders';
+      if (page === 'analytics') return currentpath === 'analytics';
+      return currentpath === page;
+    } else {
+      // For buyers, use the original logic
+      return currentpath === page;
+    }
+  };
+
   const navbclasss = (page) => `navLink${activated(page) ? ' act' : ''}`;
   const iconclass = (page) => `iconb${activated(page) ? ' aicon' : ''}`;
 
@@ -96,16 +157,21 @@ function Header({ menumove }) {
 
         <nav className="nav hiddenm">
           <div className="navlinks">
-            {['home', 'products', 'about', 'cart'].map((page) => (
+            {[
+              { key: 'home', label: 'Home', route: '/' },
+              { key: 'products', label: 'Products', route: '/products' },
+              { key: 'about', label: 'About Us', route: '/about' },
+              { key: 'cart', label: 'Cart', route: '/cart' }
+            ].map((page) => (
               <button
-                key={page}
-                className={navbclasss(page)}
-                onClick={() => safenav(`/${page === 'home' ? '' : page}`)}
-                onMouseEnter={(e) => !activated(page) && (e.currentTarget.style.color = '#f9fafb')}
-                onMouseLeave={(e) => !activated(page) && (e.currentTarget.style.color = '#ffffff')}
-                style={{ cursor: activated(page) ? 'default' : 'pointer' }}
+                key={page.key}
+                className={navbclasss(page.key)}
+                onClick={() => safenav(page.route)}
+                onMouseEnter={(e) => !activated(page.key) && (e.currentTarget.style.color = '#f9fafb')}
+                onMouseLeave={(e) => !activated(page.key) && (e.currentTarget.style.color = '#ffffff')}
+                style={{ cursor: activated(page.key) ? 'default' : 'pointer' }}
               >
-                {page === 'about' ? 'About Us' : page.charAt(0).toUpperCase() + page.slice(1)}
+                {page.label}
               </button>
             ))}
           </div>
@@ -151,7 +217,7 @@ function Header({ menumove }) {
       <div className="headercontent">
         <div
           className="logo"
-          onClick={() => safenav('/')}
+          onClick={() => safenav('/seller/dashboard')}
           onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
           onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
         >
@@ -173,15 +239,15 @@ function Header({ menumove }) {
         <nav className="nav hiddenm">
           <div className="navlinks">
             {[
-              { key: 'dashboard', label: 'Dashboard' },
-              { key: 'products', label: 'My Products' },
-              { key: 'orders', label: 'Orders' },
-              { key: 'analytics', label: 'Analytics' }
+              { key: 'dashboard', label: 'Dashboard', route: '/' },
+              { key: 'my-products', label: 'My Products', route: '/seller/products' },
+              { key: 'orders', label: 'Orders', route: '/seller/orders' },
+              { key: 'analytics', label: 'Analytics', route: '/seller/analytics' }
             ].map((page) => (
               <button
                 key={page.key}
                 className={navbclasss(page.key)}
-                onClick={() => safenav(`/seller/${page.key === 'dashboard' ? '' : page.key}`)}
+                onClick={() => safenav(page.route)}
                 onMouseEnter={(e) => !activated(page.key) && (e.currentTarget.style.color = '#f9fafb')}
                 onMouseLeave={(e) => !activated(page.key) && (e.currentTarget.style.color = '#ffffff')}
                 style={{ cursor: activated(page.key) ? 'default' : 'pointer' }}
@@ -222,7 +288,7 @@ function Header({ menumove }) {
           </button>
 
           {/* Products Count */}
-          <button onClick={() => safenav('/seller/products')} className={iconclass('products')}>
+          <button onClick={() => safenav('/seller/products')} className={iconclass('my-products')}>
             <Package size={20} />
             <span className="cartthingy">{sellerStats.totalProducts}</span>
           </button>
