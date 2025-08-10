@@ -180,7 +180,7 @@ function AboutPage() {
                 <div className="contacticon">📞</div>
                 <div className="contactdetails"><span className="contactlab">Phone:</span><span className="contactval">+91 4778349067</span></div>
               </div>
-//
+
             </div>
           </div>
         </div>

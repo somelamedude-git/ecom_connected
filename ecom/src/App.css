@@ -36,3 +36,22 @@
     transform: rotate(360deg);
   }
 }
+
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  background: white; /* or transparent with backdrop blur if you want */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none; /* so you can still click through when hidden */
+}
+
+.loader-overlay.show {
+  opacity: 1;
+  pointer-events: all;
+}

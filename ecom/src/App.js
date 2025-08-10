@@ -1,169 +1,69 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
+import Loading from "./components/loading";
 
-import LandingPage from './components/LandingPage';
-import Login from './pages/loginPage';
-import RegistrationPage from './pages/registrationPage';
-import CartPage from './components/CartPage';
-import ProductsPage from './components/ProductPage';
-import ProfilePage from './components/ProfilePage';
-import AboutPage from './components/AboutUs';
-import Layout from './components/Layout';
-import WishlistPage from './components/WishlistPage';
-import SellerProductsPage from './components/productList';
-import SellerOrdersPage from './components/sellerOrders';
-import SalesHeatmap from './components/HeatMap';
-import AddProductForm from './components/AddProduct';
-import SellerProfile from './components/sellerProfile';
-import Loading from './components/loading';
-import ProductDescriptionPage from './components/SingleProduct';
-import ProductAnalytics from './components/productAnalytics';
+const LandingPage = React.lazy(() => import("./components/LandingPage"));
+const Login = React.lazy(() => import("./pages/loginPage"));
+const RegistrationPage = React.lazy(() => import("./pages/registrationPage"));
+const CartPage = React.lazy(() => import("./components/CartPage"));
+const ProductsPage = React.lazy(() => import("./components/ProductPage"));
+const ProfilePage = React.lazy(() => import("./components/ProfilePage"));
+const AboutPage = React.lazy(() => import("./components/AboutUs"));
+const Layout = React.lazy(() => import("./components/Layout"));
+const WishlistPage = React.lazy(() => import("./components/WishlistPage"));
+const SellerProductsPage = React.lazy(() => import("./components/productList"));
+const SellerOrdersPage = React.lazy(() => import("./components/sellerOrders"));
+const SalesHeatmap = React.lazy(() => import("./components/HeatMap"));
+const AddProductForm = React.lazy(() => import("./components/AddProduct"));
+const SellerProfile = React.lazy(() => import("./components/sellerProfile"));
+const ProductDescriptionPage = React.lazy(() => import("./components/SingleProduct"));
+const ProductAnalytics = React.lazy(() => import("./components/productAnalytics"));
 
-
-function App() {
+function AppContent() {
   const location = useLocation();
-  const [showLoader, setShowLoader] = useState(false);
-  const [timerId, setTimerId] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (timerId) clearTimeout(timerId); //new thing here see if it works please?
-    setShowLoader(false);
+    setLoading(true);
 
-    const id = setTimeout(() => {
-      setShowLoader(true);
-    }, 500);//zyada delay hua
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
 
-    setTimerId(id);
-    return () => {
-      clearTimeout(id); // stop timer when navigation completes
-    };
+    return () => clearTimeout(timer);
   }, [location]);
-  // fade out starts
-  useEffect(() => {
-    if (showLoader) {
-      const hideTimer = setTimeout(() => {
-        setShowLoader(false);
-      }, 800); // Fade out duration + small buffer
-      return () => clearTimeout(hideTimer);
-    }
-  }, [location.key]);
+
   return (
     <>
-      <Loading isVisible={showLoader} />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Layout>
-              <LandingPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <Layout>
-              <Login />
-            </Layout>
-          }
-        />
-        <Route path="/signup" element={<RegistrationPage />} />
-        <Route
-          path="profile"
-          element={
-            <Layout>
-              <ProfilePage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/cart"
-          element={
-            <Layout>
-              <CartPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            <Layout>
-              <AboutPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/products"
-          element={
-            <Layout>
-              <ProductsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/wishlist"
-          element={
-            <Layout>
-              <WishlistPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/seller/products"
-          element={
-            <Layout>
-              <SellerProductsPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/seller/orders"
-          element={
-            <Layout>
-              <SellerOrdersPage />
-            </Layout>
-          }
-        />
-        <Route
-          path="/seller/analytics"
-          element={
-            <Layout>
-              <SalesHeatmap />
-            </Layout>
-          }
-        />
-        <Route
-          path="/seller/add-product"
-          element={
-            <Layout>
-              <AddProductForm />
-            </Layout>
-          }
-        />
-        <Route
-          path="/seller/profile"
-          element={
-            <Layout>
-              <SellerProfile />
-            </Layout>
-          }
-        />
+      <div className={`loader-overlay ${loading ? "show" : ""}`}>
+        <Loading />
+      </div>
 
-        <Route path='/product/:product_id' element={
-          <Layout>
-            <ProductDescriptionPage/>
-          </Layout>
-        }></Route>
-
-        <Route path='/seller/analysis/product/:product_id' element={
-          <Layout>
-            <ProductAnalytics/>
-          </Layout>
-        }></Route>
-      </Routes>
+      <Suspense fallback={<Loading />}>
+        <Routes>
+          <Route path="/" element={<Layout><LandingPage /></Layout>} />
+          <Route path="/login" element={<Layout><Login /></Layout>} />
+          <Route path="/signup" element={<Layout><RegistrationPage /></Layout>} />
+          <Route path="/profile" element={<Layout><ProfilePage /></Layout>} />
+          <Route path="/cart" element={<Layout><CartPage /></Layout>} />
+          <Route path="/about" element={<Layout><AboutPage /></Layout>} />
+          <Route path="/products" element={<Layout><ProductsPage /></Layout>} />
+          <Route path="/wishlist" element={<Layout><WishlistPage /></Layout>} />
+          <Route path="/seller/products" element={<Layout><SellerProductsPage /></Layout>} />
+          <Route path="/seller/orders" element={<Layout><SellerOrdersPage /></Layout>} />
+          <Route path="/seller/analytics" element={<Layout><SalesHeatmap /></Layout>} />
+          <Route path="/seller/add-product" element={<Layout><AddProductForm /></Layout>} />
+          <Route path="/seller/profile" element={<Layout><SellerProfile /></Layout>} />
+          <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>} />
+          <Route path='/seller/analysis/product/:product_id' element={<Layout><ProductAnalytics/></Layout>} />
+        </Routes>
+      </Suspense>
     </>
   );
 }
 
-export default App;
+
+export default function App() {
+  return <AppContent />;
+}

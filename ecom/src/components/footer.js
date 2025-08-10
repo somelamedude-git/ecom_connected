@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
+import { Instagram, Twitter, Smartphone, Play } from 'lucide-react';
 import '../styles/FooterSection.css'
 import SideMenu from './SideMenu';
 import axios from 'axios';
@@ -73,16 +74,121 @@ function FooterSection({menumove:SideMenu}) {
           <div className="downloadSection">
             <h3 className="downloadTitle">DOWNLOAD THE APP</h3>
             <div className="appButtons">
-              <img
-                src="/images/google-play-badge.svg"
-                alt="Google Play"
-                className="appButton"
-              />
-              <img
-                src="/images/app-store-badge.svg"
-                alt="App Store"
-                className="appButton"
-              />
+              <button
+                onClick={() => window.open('https://play.google.com/store', '_blank', 'noopener noreferrer')}
+                className="appButton google-play"
+                aria-label="Download from Google Play"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 20px',
+                  background: 'linear-gradient(135deg, #4285f4, #34a853)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: '0 4px 12px rgba(66, 133, 244, 0.3)',
+                  fontFamily: 'inherit',
+                  minWidth: '180px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(66, 133, 244, 0.4)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(66, 133, 244, 0.3)';
+                }}
+              >
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Play size={20} fill="#ffffff" />
+                </div>
+                <div className="appButtonText" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  textAlign: 'left'
+                }}>
+                  <span style={{
+                    fontSize: '11px',
+                    opacity: '0.9',
+                    fontWeight: '400',
+                    letterSpacing: '0.5px'
+                  }}>GET IT ON</span>
+                  <span style={{
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    lineHeight: '1.2'
+                  }}>Google Play</span>
+                </div>
+              </button>
+              
+              <button
+                onClick={() => window.open('https://apps.apple.com', '_blank', 'noopener noreferrer')}
+                className="appButton app-store"
+                aria-label="Download from App Store"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 20px',
+                  background: 'linear-gradient(135deg, #000000, #333333)',
+                  color: '#ffffff',
+                  border: '1px solid #444444',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+                  fontFamily: 'inherit',
+                  minWidth: '180px'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.5)';
+                  e.target.style.background = 'linear-gradient(135deg, #1a1a1a, #404040)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
+                  e.target.style.background = 'linear-gradient(135deg, #000000, #333333)';
+                }}
+              >
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.1)',
+                  borderRadius: '8px',
+                  padding: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Smartphone size={20} />
+                </div>
+                <div className="appButtonText" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  textAlign: 'left'
+                }}>
+                  <span style={{
+                    fontSize: '11px',
+                    opacity: '0.9',
+                    fontWeight: '400',
+                    letterSpacing: '0.5px'
+                  }}>Download on the</span>
+                  <span style={{
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    lineHeight: '1.2'
+                  }}>App Store</span>
+                </div>
+              </button>
             </div>
           </div>
 
@@ -122,12 +228,12 @@ function FooterSection({menumove:SideMenu}) {
             <div className="socialLinks">
               <button
                 onClick={()=>
-                  window.open('https://instagram.com', '_blank', 'no referencererrer')
+                  window.open('https://instagram.com', '_blank', 'noopener noreferrer')
                 }
                 className="socialIcon"
                 aria-label="Instagram"
               >
-                📸 //insta icon nhi tha
+                <Instagram size={20} />
               </button>
               <button
                 onClick={()=>
@@ -136,7 +242,7 @@ function FooterSection({menumove:SideMenu}) {
                 className="socialIcon"
                 aria-label="Twitter"
               >
-                🐦
+                <Twitter size={20} />
               </button>
             </div>
           </div>
