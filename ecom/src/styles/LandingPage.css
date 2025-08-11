@@ -14,7 +14,8 @@
 .herokaoverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(to bottom, rgba(0,0,0,0.5), rgba(0,0,0,0.8));/*ya 1.2? badme dhekna*/
+  background: rgba(31, 41, 55, 0.8);/*ya 1.2? badme dhekna*/
+  isolation: isolate;
 }
 
 .herocontent {
@@ -274,6 +275,7 @@
   margin-bottom: 4px;
   background: linear-gradient(135deg, hsl(45, 100%, 85%) 0%, hsl(35, 90%, 68%) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
