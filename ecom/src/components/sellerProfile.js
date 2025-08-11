@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
 const SellerProfile = () => {
+  const nav = useNavigate();
   const [sellerData, setSellerData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -149,7 +150,7 @@ const SellerProfile = () => {
             <div className="stat-icon products">
               <Package size={24} />
             </div>
-            <div className="stat-content">
+            <div className="stat-content" onClick={()=>nav('/seller/products')}>
               <h3>{number_of_products}</h3>
               <p>Products Listed</p>
             </div>

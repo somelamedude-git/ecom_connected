@@ -15,7 +15,7 @@ function WishlistPage() {
         const res = await axios.get('http://localhost:3000/wishlist/getItems', {  
           withCredentials: true,
         });
-        setWishlist(res.data.wish_items_info); // res.data is giving us an array, jismein we have item and inStock, item further has the product and size
+        setWishlist(res.data.wish_items_info);
       } catch (e) {
         console.error(e);
       } finally {
@@ -25,36 +25,88 @@ function WishlistPage() {
     load();
   }, []);
 
-
   const remove = async (product_id, item_size) => {
+    // Store the current wishlist for rollback if needed
+    const previousWishlist = [...wishlist];
+    
+    // Update UI immediately (optimistic update)
+    setWishlist(wishlist.filter(i => !(i.item.product._id == product_id && i.item.size === item_size)));
+    
     try {
+      // Call API after UI update
       await axios.delete(`http://localhost:3000/wishlist/deleteItem/${product_id}`, {
-  data: { size: item_size },
-  withCredentials: true
-});
-      setWishlist(wishlist.filter(i => !(i.item.product._id == product_id && i.item.size===item_size)));
+        data: { size: item_size },
+        withCredentials: true
+      });
     } catch (e) {
       console.error(e);
+      // Rollback UI changes if API call fails
+      setWishlist(previousWishlist);
+      alert('Failed to remove item from wishlist. Please try again.');
     }
   };
 
   const addCart = async (item) => {
-   try{
-     await axios.post(`http://localhost:3000/cart/addItem/${item.item.product._id}`, {
-  size_: item.item.size
-}, {
-  withCredentials: true
-});
-    remove(item.item.product._id, item.item.size);
-    alert(`${item.item.product.name} added to cart`);
-   } catch(error){
-    console.log(error);
-   }
+    // Store the current wishlist for rollback if needed
+    const previousWishlist = [...wishlist];
+    
+    // Update UI immediately by removing the item
+    setWishlist(prev => prev.filter(i => !(i.item.product._id == item.item.product._id && i.item.size === item.item.size)));
+    
+    try {
+      // Add to cart
+      await axios.post(`http://localhost:3000/cart/addItem/${item.item.product._id}`, {
+        size_: item.item.size
+      }, {
+        withCredentials: true
+      });
+      
+      // Remove from wishlist (API call)
+      await axios.delete(`http://localhost:3000/wishlist/deleteItem/${item.item.product._id}`, {
+        data: { size: item.item.size },
+        withCredentials: true
+      });
+      
+      alert(`${item.item.product.name} added to cart`);
+    } catch (error) {
+      console.log(error);
+      // Rollback UI changes if any API call fails
+      setWishlist(previousWishlist);
+      alert('Failed to add item to cart. Please try again.');
+    }
   };
 
-  const addAll = () => {
-    wishlist.filter(i => i.inStock).forEach(addCart);
-    alert('Added all in-stock items to cart!');
+  const addAll = async () => {
+    const inStockItems = wishlist.filter(i => i.inStock);
+    const previousWishlist = [...wishlist];
+    
+    // Update UI immediately by removing all in-stock items
+    setWishlist(prev => prev.filter(i => !i.inStock));
+    
+    try {
+      // Process all items
+      await Promise.all(inStockItems.map(async (item) => {
+        // Add to cart
+        await axios.post(`http://localhost:3000/cart/addItem/${item.item.product._id}`, {
+          size_: item.item.size
+        }, {
+          withCredentials: true
+        });
+        
+        // Remove from wishlist
+        await axios.delete(`http://localhost:3000/wishlist/deleteItem/${item.item.product._id}`, {
+          data: { size: item.item.size },
+          withCredentials: true
+        });
+      }));
+      
+      alert('Added all in-stock items to cart!');
+    } catch (error) {
+      console.error(error);
+      // Rollback UI changes if any API calls fail
+      setWishlist(previousWishlist);
+      alert('Failed to add some items to cart. Please try again.');
+    }
   };
 
   const total = wishlist.reduce((sum, i) => sum + i.item.product.price, 0);
@@ -64,7 +116,6 @@ function WishlistPage() {
 
   return (
     <div className="cart-container">
-
       <div className="cart-main">
         <button className="backb" onClick={() => navigate('/')}>
           <ArrowLeft size={20} /> Continue Shopping
@@ -81,7 +132,7 @@ function WishlistPage() {
               </div>
             ) : (
               wishlist.map(item => (
-                <div key={item.item.product._id} className="cartitem">
+                <div key={`${item.item.product._id}-${item.item.size}`} className="cartitem">
                   <div className="itemcontent">
                     <img
                       src={item.item.product.image}

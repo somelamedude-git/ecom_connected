@@ -18,13 +18,13 @@ function SideMenu({isopen, onclose}) {
   });
   const navigate = useNavigate();
   
-  // Buyer categories
+  // Buyer categories - ensure these match your database category names exactly
   const buyerCategories = [
-    {name:"Women's", icon:Venus},
-    {name:"Men's", icon:Mars},
-    {name:"Footwear", icon:Footprints},
-    {name:"Accessories", icon:Watch},
-    {name:"Makeup", icon:Palette}
+    {name: "Women's", displayName: "Women's", icon: Venus},
+    {name: "Men's", displayName: "Men's", icon: Mars},
+    {name: "Footwear", displayName: "Footwear", icon: Footprints},
+    {name: "Accessories", displayName: "Accessories", icon: Watch},
+    {name: "Makeup", displayName: "Makeup", icon: Palette}
   ];
 
   // Seller menu items
@@ -91,6 +91,15 @@ function SideMenu({isopen, onclose}) {
     onclose();
   };
 
+  // Handle category navigation with proper encoding
+  const handleCategoryNavigate = (categoryName) => {
+    // Encode the category name to handle special characters and spaces
+    const encodedCategory = encodeURIComponent(categoryName);
+    console.log(`Navigating to category: ${categoryName} (encoded: ${encodedCategory})`);
+    navigate(`/products?category=${encodedCategory}`);
+    onclose();
+  };
+
   const handleLogout = async () => {
     try {
       await axios.post('http://localhost:3000/user/logout', {}, {
@@ -144,10 +153,10 @@ function SideMenu({isopen, onclose}) {
             <button
               key={i}
               className="menuitem"
-              onClick={() => handleNavigate(`/products?category=${category.name}`)}
+              onClick={() => handleCategoryNavigate(category.name)}
             >
               <category.icon size={20} />
-              <span>{category.name}</span>
+              <span>{category.displayName}</span>
             </button>
           ))}
         </div>
