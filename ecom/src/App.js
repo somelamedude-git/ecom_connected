@@ -2,6 +2,8 @@ import './App.css';
 import React, { Suspense, useEffect, useState } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
 import Loading from "./components/loading";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LandingPage = React.lazy(() => import("./components/LandingPage"));
 const Login = React.lazy(() => import("./pages/loginPage"));
@@ -19,6 +21,7 @@ const AddProductForm = React.lazy(() => import("./components/AddProduct"));
 const SellerProfile = React.lazy(() => import("./components/sellerProfile"));
 const ProductDescriptionPage = React.lazy(() => import("./components/SingleProduct"));
 const ProductAnalytics = React.lazy(() => import("./components/productAnalytics"));
+const WorkWithUsPage = React.lazy(() => import("./pages/workwithusPage"));
 
 function AppContent() {
   const location = useLocation();
@@ -57,8 +60,18 @@ function AppContent() {
           <Route path="/seller/profile" element={<Layout><SellerProfile /></Layout>} />
           <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>} />
           <Route path='/seller/analysis/product/:product_id' element={<Layout><ProductAnalytics/></Layout>} />
+          <Route path="/work-with-us" element={<Layout><WorkWithUsPage /></Layout>} />
         </Routes>
       </Suspense>
+      <ToastContainer 
+      position="top-right" 
+      autoClose={3000} 
+      hideProgressBar={false} 
+      newestOnTop={false} 
+      closeOnClick 
+      pauseOnHover 
+      draggable 
+      theme="colored" />
     </>
   );
 }

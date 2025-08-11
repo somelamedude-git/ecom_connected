@@ -178,9 +178,6 @@ function Header({ menumove }) {
         </nav>
 
         <div className="headerActions">
-          <button className="iconb" onMouseEnter={(e) => e.target.style.color = '#ffffff'} onMouseLeave={(e) => e.target.style.color = '#9ca3af'}>
-            <Search size={20} />
-          </button>
 
           <button onClick={() => safenav('/wishlist')} className={iconclass('wishlist')}>
             <Heart size={20} />
