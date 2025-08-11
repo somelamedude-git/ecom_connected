@@ -220,6 +220,7 @@
   padding: 80px 0;
   text-align: center;
   background: rgba(48, 46, 51, 0.5);
+  isolation: isolate;
 }
 .ctatitle{
   font-size: 36px;

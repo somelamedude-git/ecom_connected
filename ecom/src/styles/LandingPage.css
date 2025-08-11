@@ -14,7 +14,7 @@
 .herokaoverlay {
   position: absolute;
   inset: 0;
-  background: rgba(31, 41, 55, 0.8);/*ya 1.2? badme dhekna*/
+  background: rgba(0,0,0, 0.8);/*ya 1.2? badme dhekna*/
   isolation: isolate;
 }
 

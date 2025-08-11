@@ -22,6 +22,7 @@ const SellerProfile = React.lazy(() => import("./components/sellerProfile"));
 const ProductDescriptionPage = React.lazy(() => import("./components/SingleProduct"));
 const ProductAnalytics = React.lazy(() => import("./components/productAnalytics"));
 const WorkWithUsPage = React.lazy(() => import("./pages/workwithusPage"));
+const ContactPage = React.lazy(() => import("./components/ContactPage"));
 
 function AppContent() {
   const location = useLocation();
@@ -61,12 +62,13 @@ function AppContent() {
           <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>} />
           <Route path='/seller/analysis/product/:product_id' element={<Layout><ProductAnalytics/></Layout>} />
           <Route path="/work-with-us" element={<Layout><WorkWithUsPage /></Layout>} />
+          <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
         </Routes>
       </Suspense>
       <ToastContainer 
       position="top-right" 
       autoClose={3000} 
-      hideProgressBar={false} 
+      hideProgressBar={false} x
       newestOnTop={false} 
       closeOnClick 
       pauseOnHover 

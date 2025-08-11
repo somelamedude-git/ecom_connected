@@ -190,7 +190,7 @@ function AboutPage() {
         </div>
       </section>
 
-      <FooterSection/>
+      
     </div>
   );
 }
