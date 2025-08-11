@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Admin.css';
 
 const AdminPortal = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('');
@@ -134,6 +136,10 @@ const AdminPortal = () => {
     }
   };
 
+  const handleAnalyticsClick = () => {
+    navigate('/admin/analytics');
+  };
+
   useEffect(() => {
     fetchUsers(1, typeFilter, statusFilter);
   }, [typeFilter, statusFilter]);
@@ -159,8 +165,30 @@ const AdminPortal = () => {
       <div className="admin-main">
         {/* Header */}
         <div className="admin-header">
-          <h1 className="admin-title">User Management</h1>
-          <p className="admin-subtitle">Manage user accounts and permissions ({totalUsers} total users)</p>
+          <div>
+            <h1 className="admin-title">User Management</h1>
+            <p className="admin-subtitle">Manage user accounts and permissions ({totalUsers} total users)</p>
+          </div>
+          <button
+            onClick={handleAnalyticsClick}
+            className="action-button button-primary"
+            style={{ 
+              backgroundColor: '#ffd700',
+              color: '#000000',
+              border: '1px solid #ffd700',
+              fontWeight: '600',
+              padding: '12px 24px',
+              borderRadius: '8px',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              fontSize: '14px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}
+          >
+            📊 Analytics Dashboard
+          </button>
         </div>
 
         {/* Filters */}
