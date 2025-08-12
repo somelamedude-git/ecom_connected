@@ -21,6 +21,8 @@ const AddProductForm = React.lazy(() => import("./components/AddProduct"));
 const SellerProfile = React.lazy(() => import("./components/sellerProfile"));
 const ProductDescriptionPage = React.lazy(() => import("./components/SingleProduct"));
 const ProductAnalytics = React.lazy(() => import("./components/productAnalytics"));
+const AdminPortal = React.lazy(() => import("./components/Admin"));
+const AnalyticsDashboard = React.lazy(() => import('./components/analytics'))
 const WorkWithUsPage = React.lazy(() => import("./pages/workwithusPage"));
 const ContactPage = React.lazy(() => import("./components/ContactPage"));
 
@@ -61,6 +63,8 @@ function AppContent() {
           <Route path="/seller/profile" element={<Layout><SellerProfile /></Layout>} />
           <Route path='/product/:product_id' element={<Layout><ProductDescriptionPage/></Layout>} />
           <Route path='/seller/analysis/product/:product_id' element={<Layout><ProductAnalytics/></Layout>} />
+          <Route path='/admin/portal' element={<Layout><AdminPortal/></Layout>} />
+          <Route path='/admin/analytics' element={<Layout><AnalyticsDashboard/></Layout>} />
           <Route path="/work-with-us" element={<Layout><WorkWithUsPage /></Layout>} />
           <Route path="/contact" element={<Layout><ContactPage /></Layout>} />
         </Routes>
@@ -78,7 +82,7 @@ function AppContent() {
   );
 }
 
-
 export default function App() {
   return <AppContent />;
 }
+
