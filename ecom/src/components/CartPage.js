@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Minus, Plus, Trash2, ArrowLeft, Shield, ShoppingBag } from 'lucide-react';
+import { ToastContainer } from 'react-toastify';
 
 import axios from 'axios';
 import { Link } from 'react-router-dom';

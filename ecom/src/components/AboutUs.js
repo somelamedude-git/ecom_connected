@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { Heart, Star, Users, Sparkles, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { toast } from 'react-toastify'; //here
 import '../styles/AboutPage.css';
 import clique_experience from '../assets/clique_experience.jpg';
 import clique_team from '../assets/clique_team.png';
@@ -16,8 +17,11 @@ function AboutPage() {
       try {
         navigate(path);
       } catch (err) {
+        toast.error('Navigation error occurred. Please try again.'); //here
         console.error('Navigation error:', err);
       }
+    } else {
+      toast.error('Invalid navigation path.'); //here
     }
   };
 
@@ -180,13 +184,13 @@ function AboutPage() {
                 <div className="contacticon">📞</div>
                 <div className="contactdetails"><span className="contactlab">Phone:</span><span className="contactval">+91 4778349067</span></div>
               </div>
-
+//
             </div>
           </div>
         </div>
       </section>
 
-      <FooterSection/>
+      
     </div>
   );
 }
